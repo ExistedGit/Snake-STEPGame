@@ -1,17 +1,11 @@
-#pragma once
+п»ї#pragma once
 #include "Map.h"
 #include "Menu.h"
 
 using namespace std;
 
 
-class CFoo {
-public:
-	int m_i = 0;
-	void bar() {
-		++m_i;
-	}
-};
+
 
 int main() {
 	setlocale(LC_ALL, "");
@@ -19,13 +13,30 @@ int main() {
 	ShowConsoleCursor(false);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
-	//CFoo foo;
-	//thread t1(&CFoo::bar, &foo);
-	//t1.join();
-	//std::cout << foo.m_i << std::endl;
+	
 	while (true) {
+		Map mainMap;
 		CenteredMenu mainMenu;
+		vector<string> buttons = { "РќРѕРІР°СЏ РёРіСЂР°", "РќР°СЃС‚СЂРѕР№РєРё", "Р’С‹С…РѕРґ" };
+		int chooseMain = mainMenu.select_vertical(buttons) + 1;
+		system("cls");
+		switch (chooseMain) {
+		case 1:
+			mainMap.Draw();
+			mainMap.spawnSnake();
+			mainMap.Update();
+			break;
+		case 2:
+			vector<string> left = { "РЎР»РѕР¶РЅРѕСЃС‚СЊ", "Р”Р»РёРЅР° Р·РјРµР№РєРё", "Р”Р»РёРЅР° Р·Р° РєР°Р¶РґСѓСЋ РµРґСѓ" };
+			vector<vector<string>> right = { {"Easy", "Middle", "Hard"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 
+			SettingsMenu settings;
+			map<int, int> choose = settings.startMenu(left, right);
+			
+			mainMap.difficulty = 4 - choose[0] - 1;
+			
+			break;
+		}
 		/*vector<string> gameOver = {" _____   ___  ___  ___ _____      _____  _   _  _____ ______",
 								   "|  __ \\ / _ \\ |  \\/  ||  ___|    |  _  || | | ||  ___|| ___ \\",
 								   "| |  \\// /_\\ \\| .  . || |__      | | | || | | || |__  | |_/ /",
@@ -34,35 +45,16 @@ int main() {
 		                           " \\____/\\_| |_/\\_|  |_/\\____/      \\___/  \\___/ \\____/ \\_| \\_|"};*/
 
 		
-		vector<string> buttons = { "Новая игра", "Настройки", "Выход" };
-		vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
-		vector<vector<string>> right = { {"Easy", "Middle", "Hard"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
+	
 		
-		SettingsMenu settings;
-		map<int, int> choose = settings.startMenu(left, right);
 		
-		int difficulty=4-choose[0]-1;
 		
 		system("pause");
 		
-		//int choose = mainMenu.select_vertical(buttons) + 1;
-
-		switch (true) {
-		case 1:
-			system("cls");
-			Map mainMap;
-			mainMap.difficulty = difficulty;
-			mainMap.Draw();
-			mainMap.spawnSnake();
-
-
-			//thread valera(&Map::keyPress, &mainMap);
-			mainMap.Update();
-			//valera.detach();
-			break;
-		}
-
-		system("pause");
 		system("cls");
+	
+		
+		
+		
 	}
 }

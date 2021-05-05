@@ -2,13 +2,13 @@
 #include "Snake.h"
 
 // магические числа это плохо.
-enum TileTypes {
-	SPACE = 0,
-	BODY,
-	HEAD,
-	WALL,
-	FOOD
-};
+//enum TileTypes {
+//	SPACE = 0,
+//	BODY,
+//	HEAD,
+//	WALL,
+//	FOOD
+//};
 enum Difficulties {
 	HARD = 1,
 	MIDDLE,
@@ -20,10 +20,10 @@ using namespace std;
 struct Map {
 	// Ширина да высота карты
 	int width = 40, height= 40;
-	// Матрица, представляющая карту
-	int** matrix = new int*[height];
+	
 	int difficulty=HARD;
 	vector<vector<int>> food;
+	vector<vector<int>> walls;
 	bool isRunning = false;
 	
 	Snake s = Snake(width/2, height/2);
@@ -31,26 +31,39 @@ struct Map {
 	
 
 	// Отрисовывает карту в первый раз
-	void Draw() {
+	void Draw(string map = "./Maps/Default.snakemap") {
+		ifstream fin(map);
+		char c;
+		char buff[80];
+		int l = 0;
+		while (fin.getline(buff, 80)) {
+			for (int i = 0; buff[i] != '\0'; i++) {
+				if (buff[i] == '#') walls.push_back({i,l});
+			}
+			l++;
+		}
 		
-		for (int i = 0; i < height; i++){
+		for (int i = 0; i < walls.size(); i++) {
+			gotoxy(walls[i][0], walls[i][1]);
 			cout << "#";
-			matrix[i] = new int[width];
-			matrix[i][0]=WALL;
+		}
+
+		/*for (int i = 0; i < height; i++){
+			cout << "#";
 			for (int j = 1; j < width; j++) {
 				if (i == 0 || i == height - 1) {
 					cout << "#";
-					matrix[i][j] = WALL;
+					
 				}
 				else {
 					cout << " ";
-					matrix[i][j] = SPACE;
+					
 				}
 			}
-			matrix[i][width - 1] = WALL;
+			
 			cout << "#";
 			cout << endl;
-		}
+		}*/
 		isRunning = true;
 	}
 
@@ -61,7 +74,7 @@ struct Map {
 		if (posX == 0) posX = width/2;   //Не, ну а шо оно не позволяет мне засунуть высоту и ширину как дефолтные аргументы
 		if (posY == 0) posY = height / 2; //Приходится вот такое городить, дай Бог сработает.
 
-		matrix[posY][posX] = HEAD;
+		
 		s.bodyMatrix[0] = {posX, posY};
 
 	}
@@ -85,27 +98,6 @@ struct Map {
 		cout << "@";
 		SetColor();
 	}
-
-	static void printSomething(Map m) {
-		for (int i = 0; i < 100; i++) {
-			gotoxy(m.width + 3, (m.height / 2) + 4);
-			SetColor(15);
-			cout << i;
-			SetColor();
-			Sleep(500);
-		}
-	}
-	
-	//void keyPress() {
-	//	while (true) {
-	//		if (_kbhit()) {
-	//			int c; // Переменная, в которую засовывается направление
-	//			c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
-	//			s.changeDirection(c);
-	//		}
-	//	}
-	//}
-
 
 	void Update() {
 		displayLength();
@@ -144,11 +136,16 @@ struct Map {
 					}
 				}
 			}
-			if (s.bodyMatrix[0][0] > width -1|| s.bodyMatrix[0][0] <=0) isRunning = false;
-			if (s.bodyMatrix[0][1] > height -2|| s.bodyMatrix[0][1] <= 0) isRunning = false;
+			
 			for (int i = 1; i < s.bodyMatrix.size(); i++) {
 				if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
 			}
+
+			for (int j = 0; j < walls.size(); j++) {
+				if(s.bodyMatrix[0][0] == walls[j][0] && s.bodyMatrix[0][1] == walls[j][1]) isRunning = false;
+			}
+			
+
 			gotoxy(0, height+1);
 		}
 		gotoxy(width / 2 - 4, height / 2);
