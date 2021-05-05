@@ -96,15 +96,15 @@ struct Map {
 		}
 	}
 	
-	void keyPress() {
-		while (true) {
-			if (_kbhit()) {
-				int c; // Переменная, в которую засовывается направление
-				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
-				s.changeDirection(c);
-			}
-		}
-	}
+	//void keyPress() {
+	//	while (true) {
+	//		if (_kbhit()) {
+	//			int c; // Переменная, в которую засовывается направление
+	//			c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
+	//			s.changeDirection(c);
+	//		}
+	//	}
+	//}
 
 
 	void Update() {
@@ -112,11 +112,19 @@ struct Map {
 			
 		while (isRunning) {
 			ShowConsoleCursor(false);
+			
 			if (food.empty()) {
 				generateFood();
 			};
 			
 
+			
+			if (_kbhit()) {
+				int c; // Переменная, в которую засовывается направление
+				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
+				s.changeDirection(c);
+				continue;
+			}
 			Sleep(200 * difficulty);
 			s.Update();
 			s.drawSnake();

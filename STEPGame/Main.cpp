@@ -61,9 +61,9 @@ int main() {
 			mainMap.spawnSnake();
 
 
-			thread valera(&Map::keyPress, &mainMap);
+			//thread valera(&Map::keyPress, &mainMap);
 			mainMap.Update();
-			valera.detach();
+			//valera.detach();
 			break;
 		}
 
