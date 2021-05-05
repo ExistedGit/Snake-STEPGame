@@ -1,10 +1,10 @@
-#pragma once
+п»ї#pragma once
 #include "Snake.h"
 #include <conio.h>
 #include <WinUser.h>
 
 
-int findMaxString(vector<string> a) { // Возвращает длину самой длинной строчки в массиве
+int findMaxString(vector<string> a) { // Р’РѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ СЃР°РјРѕР№ РґР»РёРЅРЅРѕР№ СЃС‚СЂРѕС‡РєРё РІ РјР°СЃСЃРёРІРµ
 	int max = a[0].length();
 	for (int i = 1; i < a.size(); i++) {
 		if (a[i].length() > max) max = a[i].length();
@@ -306,6 +306,7 @@ struct SettingsMenu {
 					cout << right[i][posRight[i]];
 					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";
 					if (posRight[i] != right[i].size() - 1) cout << " >";
+					else cout << "  ";
 					SetColor();
 				}
 				else {
@@ -321,7 +322,7 @@ struct SettingsMenu {
 					cout << right[i][posRight[i]];
 					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";
 					if (posRight[i] != right[i].size() - 1) cout << " >";
-					
+					else cout << "  ";
 					SetColor();
 				}
 			}
