@@ -125,7 +125,7 @@ struct Map {
 				s.changeDirection(c);
 				continue;
 			}
-			Sleep(200 * difficulty);
+			Sleep(150 * difficulty);
 			s.Update();
 			s.drawSnake();
 			

@@ -268,15 +268,13 @@ struct CenteredMenu : Menu {
 	}
 };
 
-struct SettingsMenuCoord {
-	int left, right;
-};
+
 
 struct SettingsMenu {
 	
 
-	SettingsMenuCoord startMenu(vector<string> left, vector<vector<string>> right, int posX = 1, int posY = 0) {
-	
+	map<int, int> startMenu(vector<string> left, vector<vector<string>> right, int posX = 1, int posY = 0) {
+		map<int, int> returnMap;
 		char c;
 
 		int posLeft = 0;
@@ -356,6 +354,9 @@ struct SettingsMenu {
 			}
 			system("cls");
 		} while (c != VK_ESCAPE);
-		return {posLeft, posRight[posLeft]};
+		for (int i = 0; i < left.size(); i++) {
+			returnMap[i] = posRight[i];
+		}
+		return returnMap;
 	}
 }; 

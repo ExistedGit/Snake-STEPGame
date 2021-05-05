@@ -39,15 +39,10 @@ int main() {
 		vector<vector<string>> right = { {"Easy", "Middle", "Hard"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 		
 		SettingsMenu settings;
-		SettingsMenuCoord choose = settings.startMenu(left, right);
-		choose.left++;
-		choose.right++;
-		int difficulty = HARD;
-		switch (choose.left) {
-		case 1:
-			difficulty = 4 - choose.right;
-			break;
-		}
+		map<int, int> choose = settings.startMenu(left, right);
+		
+		int difficulty=4-choose[0]-1;
+		
 		system("pause");
 		
 		//int choose = mainMenu.select_vertical(buttons) + 1;
