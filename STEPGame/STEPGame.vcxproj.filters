@@ -45,7 +45,7 @@
     <Image Include="icon1.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="G:\DOWNLOADINGS\Без имени-1.ico">
+    <Image Include="G:\DOWNLOADINGS\SNAKE.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>
