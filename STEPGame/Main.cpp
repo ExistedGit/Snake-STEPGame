@@ -23,7 +23,6 @@ int main() {
 		switch (chooseMain) {
 		case 1:
 			mainMap.Draw();
-			mainMap.spawnSnake();
 			mainMap.Update();
 			break;
 		case 2:

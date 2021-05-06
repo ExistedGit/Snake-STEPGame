@@ -24,6 +24,9 @@ struct Map {
 	int difficulty=HARD;
 	vector<vector<int>> food;
 	vector<vector<int>> walls;
+	
+	
+
 	bool isRunning = false;
 	
 	Snake s = Snake(width/2, height/2);
@@ -36,9 +39,14 @@ struct Map {
 		char c;
 		char buff[80];
 		int l = 0;
+
+		vector<int> snakePos = {0, 0};
 		while (fin.getline(buff, 80)) {
 			for (int i = 0; buff[i] != '\0'; i++) {
 				if (buff[i] == '#') walls.push_back({i,l});
+				else if (buff[i] == '+') {
+					snakePos = { i,l };
+				}
 			}
 			l++;
 		}
@@ -47,7 +55,7 @@ struct Map {
 			gotoxy(walls[i][0], walls[i][1]);
 			cout << "#";
 		}
-
+		spawnSnake(snakePos[0], snakePos[1]);
 		/*for (int i = 0; i < height; i++){
 			cout << "#";
 			for (int j = 1; j < width; j++) {
@@ -70,13 +78,8 @@ struct Map {
 	
 
 	// Ставит в нужную точку карты змейку
-	void spawnSnake(int posX = 0, int posY = 0) {
-		if (posX == 0) posX = width/2;   //Не, ну а шо оно не позволяет мне засунуть высоту и ширину как дефолтные аргументы
-		if (posY == 0) posY = height / 2; //Приходится вот такое городить, дай Бог сработает.
-
-		
-		s.bodyMatrix[0] = {posX, posY};
-
+	void spawnSnake(int posX, int posY) {
+		s = Snake(posX, posY);
 	}
 
 	void displayLength() {
@@ -109,8 +112,6 @@ struct Map {
 				generateFood();
 			};
 			
-
-			
 			if (_kbhit()) {
 				int c; // Переменная, в которую засовывается направление
 				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
@@ -139,6 +140,8 @@ struct Map {
 			
 			for (int i = 1; i < s.bodyMatrix.size(); i++) {
 				if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
+						
+				;
 			}
 
 			for (int j = 0; j < walls.size(); j++) {
