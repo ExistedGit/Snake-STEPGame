@@ -140,7 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MainMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h" />

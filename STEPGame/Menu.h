@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Snake.h"
 #include <conio.h>
-#include <WinUser.h>
+#include <WinUser.h> // нужны же мне в конце концов удобные литералы с номерами кнопок в _гетче()
 
 
 int findMaxString(vector<string> a) { // Возвращает длину самой длинной строчки в массиве
@@ -222,18 +222,22 @@ struct CenteredMenu : Menu {
 				if (i == pos)
 				{
 					SetColor(fgactive, bgactive);
-					gotoxy(posX, posY + i);
+					gotoxy(posX-1, posY + i);
+					cout << " ";
 					for (int i = 0; i < max; i++) cout << " ";
-
+					cout << " ";
 					gotoxy(posX + (max - menu[i].size()) / 2, posY + i);
 					cout << menu[i] << endl;
+					
 					SetColor(fgdefault, bgdefault);
 				}
 				else
 				{
 					SetColor(fgdefault, bgdefault);
-					gotoxy(posX, posY + i);
+					gotoxy(posX-1, posY + i);
+					cout << " ";
 					for (int i = 0; i < max; i++) cout << " ";
+					cout << " ";
 					gotoxy(posX + (max - menu[i].size()) / 2, posY + i);
 					cout << menu[i] << endl;
 					SetColor(fgactive, bgactive);
@@ -274,11 +278,11 @@ struct SettingsMenu {
 	
 
 	map<int, int> startMenu(vector<string> left, vector<vector<string>> right, int posX = 1, int posY = 0) {
-		map<int, int> returnMap;
-		char c;
+		map<int, int> returnMap; // Возвращаемая map индексов полей к их значениям
+		char c; // Ввод
 
-		int posLeft = 0;
-		vector<int> posRight = {};
+		int posLeft = 0; // Позиция слева
+		vector<int> posRight = {}; // Массив, где каждый элемент представляет собой значение поля кнопки слева(соответствуют по индексу)
 		do{
 			for (int i = 0; i < left.size(); i++) posRight.push_back(0);
 			int max = findMaxString(left);
@@ -294,15 +298,15 @@ struct SettingsMenu {
 					gotoxy(posX, posY + i);
 					SetColor(0, 15);
 					cout << left[i];
-					for (int k = 0; k < max - left[i].size(); k++) cout << " ";
+					for (int k = 0; k < max - left[i].size(); k++) cout << " "; // Выравнивание слева
 					for (int k = 0; k < 5; k++) cout << " ";
 
-
+					// Если можно пролистнуть влево и/или вправо, ставим стрелочки
 					if (posRight[i] != 0) cout << "< ";
 					else cout << "  ";
 
 					cout << right[i][posRight[i]];
-					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";
+					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";// Выравнивание справа
 					if (posRight[i] != right[i].size() - 1) cout << " >";
 					else cout << "  ";
 					SetColor();
@@ -314,6 +318,7 @@ struct SettingsMenu {
 					for (int k = 0; k < max - left[i].size(); k++) cout << " ";
 					for (int k = 0; k < 5; k++) cout << " ";
 
+					
 
 					if (posRight[i] != 0) cout << "< ";
 					else cout << "  ";
