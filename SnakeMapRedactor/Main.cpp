@@ -1,12 +1,12 @@
 #pragma once
+#pragma comment(lib, "winmm.lib")
 #include "MapEditor.h"
-
-
+#include <windows.h>
+#include <thread>
 
 int main() {
     setlocale(LC_ALL, "");
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-    
     string logo = R"MAP(
            __  __          _____          
           |  \/  |   /\   |  __ \         

@@ -1,6 +1,8 @@
 ﻿#pragma once
+
 #include "Map.h"
 #include "Menu.h"
+#include "../SnakeMapRedactor/MapEditor.h";
 
 using namespace std;
 
@@ -13,12 +15,21 @@ int main() {
 	ShowConsoleCursor(false);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 
+	string logo = R"Main(
+  ________   _____  ___         __       __   ___    _______  
+ /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
+(:   \___/  |.\\   \    |     /    \    (: |/   /  (: ______) 
+ \___  \    |: \.   \\  |    /' /\  \   |    __/    \/    |   
+  __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
+ /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
+(_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 	
 	while (true) {
+		printRaw(logo, 80, 2, LightGreen);
 		Map mainMap;
 		CenteredMenu mainMenu;
 		vector<string> buttons = { "Новая игра", "Настройки", "Выход" };
-		int chooseMain = mainMenu.select_vertical(buttons) + 1;
+		int chooseMain = mainMenu.select_vertical(buttons, 108, 12) + 1;
 		system("cls");
 		switch (chooseMain) {
 		case 1:

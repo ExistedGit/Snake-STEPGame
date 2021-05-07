@@ -209,6 +209,7 @@ struct Snake {
 					direction = key_direction[c];
 					Update();
 					drawSnake();
+					Sleep(100);
 				}
 			}
 		}

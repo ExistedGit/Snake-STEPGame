@@ -44,19 +44,58 @@ struct MapEditor {
             cout << endl;
         }
     }
+    void displayMode(bool drawMode, bool pointMode) {
+        
+        SetColor();
+        gotoxy(width / 2 - 10, height + 2);
+        for (int i = 0; i < 30; i++) cout << " ";
+        gotoxy(width / 2 - 10, height + 2);
+        cout << "Режим: ";
 
+        if (!drawMode) {
+            cout << "Перемещение";
+        }
+        else if (drawMode && !pointMode) {
+
+            cout << "Рисование";
+        }
+        else if (drawMode && pointMode) {
+            cout << "Точечное рисование";
+        }
+        
+        gotoxy(width + 2, height / 1.5);
+        cout << "  ";
+        if (!drawMode) cout << "+";
+        else if (drawMode && !pointMode)cout << "*";
+        else if (drawMode && pointMode)cout << "*.";
+        
+    }
+   
+    
     void start() {
+        
+        bool drawMode = false;// Чтобы процесс рисования был проще
+        bool pointMode = true;
+        char drawTile = SPACE;
+        
         bool active = true;
         int posX=0, posY=0;
         char c;
-        vector<int> oldPos ;
+        vector<int> oldPos = { 0, 1 };
         
         draw();
+        displayMode(drawMode, pointMode);
         while (active) {
+
+            gotoxy(oldPos[0], oldPos[1]);
+            SetColor(15, 0);
+            cout << matrix[oldPos[1]][oldPos[0]];
+            SetColor();
             
             gotoxy(posX, posY);
             SetColor(0, 15);
             cout << matrix[posY][posX];
+
 
 
             c = _getch();
@@ -74,14 +113,34 @@ struct MapEditor {
             case KEY_LEFT:
                 if (posX >0)posX--;
                 break;
+            case 0x31:
+                drawTile = SPACE;
+                break;
+            case 0x32:
+                drawTile = WALL;
+                break;
+            case SPACE:
+                if(!pointMode) drawMode = !drawMode;
+                else {
+                    drawMode = true;
+                }
+                displayMode(drawMode, pointMode);
+                break;
+            case 'z': case 'Z':
+                pointMode = !pointMode;
+                displayMode(drawMode, pointMode);
+                break;
             case VK_ESCAPE:
                 active = false;
                 break;
+            
+
+                
             }
-            gotoxy(oldPos[0], oldPos[1]);
-            SetColor(15, 0);
-            cout << matrix[oldPos[1]][oldPos[0]];
-            SetColor();
+            
+            if (drawMode) matrix[posY][posX] = drawTile;
+            if (pointMode) drawMode = false;
+            
         }
     }
 };

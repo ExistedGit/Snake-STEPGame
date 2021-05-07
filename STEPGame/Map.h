@@ -1,6 +1,7 @@
 #pragma once
+#pragma comment(lib, "winmm.lib")
 #include "Snake.h"
-
+#include <thread>
 // магические числа это плохо.
 //enum TileTypes {
 //	SPACE = 0,
@@ -16,6 +17,10 @@ enum Difficulties {
 
 };
 using namespace std;
+
+//void playBiteSound() {
+//	PlaySound(TEXT("./Resources/bite.wav"), NULL, SND_ASYNC);
+//}
 
 struct Map {
 	// Ўирина да высота карты
@@ -103,6 +108,7 @@ struct Map {
 	}
 
 	void Update() {
+		thread stopSound;
 		displayLength();
 			
 		while (isRunning) {
@@ -118,7 +124,7 @@ struct Map {
 				s.changeDirection(c);
 				continue;
 			}
-			Sleep(150 * difficulty);
+			Sleep(250 * difficulty);
 			s.Update();
 			s.drawSnake();
 			
@@ -128,6 +134,8 @@ struct Map {
 					food.pop_back();
 					s.growTail();
 					displayLength();
+					PlaySound(TEXT("./Resources/bite.wav"), NULL, SND_ASYNC);
+					stopSound = thread([]() {Sleep(1000); PlaySound(NULL, NULL, SND_ASYNC); });
 				}
 			}
 			for (int i = 1; i < s.bodyMatrix.size();i++) {
