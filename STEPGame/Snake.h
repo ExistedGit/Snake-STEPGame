@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <iostream>
 #include <Windows.h>
 #include <vector>
@@ -8,7 +8,7 @@
 using namespace std;
 
 
-// Les константы
+// Les РєРѕРЅСЃС‚Р°РЅС‚С‹
 #define KEY_UP 72
 #define KEY_DOWN 80
 #define KEY_LEFT 75
@@ -87,7 +87,7 @@ void removeElement(T*& a, int& n, int index = -1) {
 	a = p;	
 }
 
-// Показывает на экран матрицу а.
+// РџРѕРєР°Р·С‹РІР°РµС‚ РЅР° СЌРєСЂР°РЅ РјР°С‚СЂРёС†Сѓ Р°.
 template <class T>
 void showMatrix(T** a, int row, int col) {
 	for (int i = 0; i < row; i++) {
@@ -108,11 +108,11 @@ enum Directions {
 struct Snake {
 	
 	vector<vector<int>> bodyMatrix = {};
-	//Длина змейки(включая голову)
-	int length = 15;
-	//Направление
+	//Р”Р»РёРЅР° Р·РјРµР№РєРё(РІРєР»СЋС‡Р°СЏ РіРѕР»РѕРІСѓ)
+	int length = 2;
+	//РќР°РїСЂР°РІР»РµРЅРёРµ
 	int direction = UP;
-	// Конструктор шобы удобно было автоматически создавать змеюку любой длины
+	// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ С€РѕР±С‹ СѓРґРѕР±РЅРѕ Р±С‹Р»Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РІР°С‚СЊ Р·РјРµСЋРєСѓ Р»СЋР±РѕР№ РґР»РёРЅС‹
 	Snake(int x, int y) {
 		bodyMatrix.push_back(vector<int>{ x,y });
 		for (int i = 1; i < length; i++) {
@@ -135,12 +135,12 @@ struct Snake {
 		}
 
 	}
-	// Обновление местоположения змейки
+	// РћР±РЅРѕРІР»РµРЅРёРµ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёСЏ Р·РјРµР№РєРё
 	void Update() {
-		//Тут описано движение в разных направлениях
+		//РўСѓС‚ РѕРїРёСЃР°РЅРѕ РґРІРёР¶РµРЅРёРµ РІ СЂР°Р·РЅС‹С… РЅР°РїСЂР°РІР»РµРЅРёСЏС…
 		switch (direction) {
-		case UP: // Осторожно: сложные эвристические алгоритмы с применением ИИ
-			gotoxy(bodyMatrix[bodyMatrix.size() - 1][0], bodyMatrix[bodyMatrix.size() - 1][1] ); // Тут везде просто двигается голова в нужном направлении и удаляется последний элемент
+		case UP: // РћСЃС‚РѕСЂРѕР¶РЅРѕ: СЃР»РѕР¶РЅС‹Рµ СЌРІСЂРёСЃС‚РёС‡РµСЃРєРёРµ Р°Р»РіРѕСЂРёС‚РјС‹ СЃ РїСЂРёРјРµРЅРµРЅРёРµРј РР
+			gotoxy(bodyMatrix[bodyMatrix.size() - 1][0], bodyMatrix[bodyMatrix.size() - 1][1] ); // РўСѓС‚ РІРµР·РґРµ РїСЂРѕСЃС‚Рѕ РґРІРёРіР°РµС‚СЃСЏ РіРѕР»РѕРІР° РІ РЅСѓР¶РЅРѕРј РЅР°РїСЂР°РІР»РµРЅРёРё Рё СѓРґР°Р»СЏРµС‚СЃСЏ РїРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚
 			cout << " ";
 			bodyMatrix.pop_back();
 			bodyMatrix.insert(bodyMatrix.begin(), { bodyMatrix[0][0], bodyMatrix[0][1] - 1 });
@@ -191,19 +191,17 @@ struct Snake {
 
 	
 
-	// Меняет направление движения
+	// РњРµРЅСЏРµС‚ РЅР°РїСЂР°РІР»РµРЅРёРµ РґРІРёР¶РµРЅРёСЏ
 	void changeDirection(int c) {
 		
-		//map, ибо не гоже царской особе switch() использовать
-		map<int, int> key_direction = { {KEY_UP, UP}, {KEY_DOWN, DOWN}, {KEY_LEFT, LEFT}, {KEY_RIGHT, RIGHT} };
-		map<int, int> keyCompatibility = { {KEY_UP, DOWN}, {KEY_DOWN, UP}, {KEY_LEFT, RIGHT}, {KEY_RIGHT, LEFT} };
+		//map, РёР±Рѕ РЅРµ РіРѕР¶Рµ С†Р°СЂСЃРєРѕР№ РѕСЃРѕР±Рµ switch() РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+		map<int, int> key_direction = { {KEY_UP, UP}, {KEY_DOWN, DOWN}, {KEY_LEFT, LEFT}, {KEY_RIGHT, RIGHT} }; // РџСЂРѕСЃС‚Рѕ РєР°СЂС‚Р° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ РЅР°РїСЂР°РІР»РµРЅРёР№ Рё РєРЅРѕРїРѕС‡РµРє
+		map<int, int> keyCompatibility = { {KEY_UP, DOWN}, {KEY_DOWN, UP}, {KEY_LEFT, RIGHT}, {KEY_RIGHT, LEFT} }; // РљР°СЂС‚Р° РЅРµСЃРѕРІРјРµСЃС‚РёРјС‹С… РїРµСЂРµРЅР°РїСЂР°РІР»РµРЅРёР№(e. g. РµСЃР»Рё Р·РјРµР№РєР° РґРІРёРіР°РµС‚СЃСЏ РІРїСЂР°РІРѕ, С‚Рѕ СЃСЂР°Р·Сѓ РІР»РµРІРѕ РїРѕРІРµСЂРЅСѓС‚СЊ РЅРµР»СЊР·СЏ)
 		
 
-		// Ладно, me.trick() вернул значение true, вы были наглым образом обмануты
-
-
+		
 		if (direction != keyCompatibility[c]) {
-			if (key_direction[c]) {// Если передана стрелочка, то направление меняется
+			if (key_direction[c]) { // Р•СЃР»Рё РїРµСЂРµРґР°РЅР° СЃС‚СЂРµР»РѕС‡РєР°, С‚Рѕ РЅР°РїСЂР°РІР»РµРЅРёРµ РјРµРЅСЏРµС‚СЃСЏ
 				if (direction != key_direction[c]) {
 					
 					direction = key_direction[c];
