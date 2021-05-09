@@ -8,20 +8,36 @@
 
 #define SPACE ' '
 #define WALL '#'
-#define HEAD '+'
+#define SPAWN '+'
 
 #define BUFFERSIZE 4000
 DWORD g_BytesTransferred = 0;
 
 
-VOID CALLBACK FileIOCompletionRoutine(
-    __in  DWORD dwErrorCode,
-    __in  DWORD dwNumberOfBytesTransfered,
-    __in  LPOVERLAPPED lpOverlapped)
-{
-    _tprintf(TEXT("Error code:\t%x\n"), dwErrorCode);
-    _tprintf(TEXT("Number of bytes:\t%x\n"), dwNumberOfBytesTransfered);
-    g_BytesTransferred = dwNumberOfBytesTransfered;
+
+// Returns an empty string if dialog is canceled
+wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL) {
+
+    OPENFILENAME ofn;
+    wchar_t fileName[MAX_PATH] = L"";
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrFile = (LPWSTR)fileName;
+    ofn.lpstrTitle = L"Открыть карту Змейки...";
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = L"";
+
+    wstring fileNameStr;
+    if (GetOpenFileName(&ofn))
+        fileNameStr = fileName;
+
+    return fileNameStr;
 }
 
 void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посимвольно копирует 
@@ -38,22 +54,24 @@ void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посимвольн
 }
 
 struct MapEditor {
-    char** matrix = new char*[40];
     int width = 40, height = 40;
+    vector<vector<char>> matrix;
+    
+    
     
     
     MapEditor() {
         for (int i = 0; i < height; i++) {
-            matrix[i] = new char[width];
+            matrix.push_back({});
             for (int j = 0; j < width; j++) {
-                matrix[i][j] = WALL;
+                matrix[i].push_back(WALL);
             }
         }
         
     }
     void draw() {
         for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+            for (int j = 0; j <= width; j++) {
                 SetColor(15, 0);
                 
                 cout << matrix[i][j];
@@ -62,74 +80,24 @@ struct MapEditor {
             cout << endl;
         }
     }
-    void load() {
-        system("cls");
-        OPENFILENAME ofn;       // common dialog box structure
-        char szFile[BUFFERSIZE];   // buffer for file name
-        DWORD  dwBytesRead = 0;
-        HWND hwnd = GetConsoleWindow();              // owner window
-        HANDLE hf = NULL;              // file handle
-        OVERLAPPED ol = { 0 };
-        // Initialize OPENFILENAME
-        ZeroMemory(&ofn, sizeof(ofn));
-        ofn.lStructSize = sizeof(ofn);
-        ofn.hwndOwner = hwnd;
-        ofn.lpstrFile = LPWSTR(szFile);
-        // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-        // use the contents of szFile to initialize itself.
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = TEXT("SnakeMap\0*.SNAKEMAP\0");
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-        // Display the Open dialog box. 
-
-        if (GetOpenFileName(&ofn) == TRUE)
-            hf = CreateFile(ofn.lpstrFile,
-                GENERIC_READ,
-                FILE_SHARE_READ,
-                (LPSECURITY_ATTRIBUTES)NULL,
-                OPEN_EXISTING,
-                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
-                (HANDLE)NULL);
-        BOOL bErrorFlag = FALSE;
-        // Read one character less than the buffer size to save room for
- // the terminating NULL character. 
-        
-        if (FALSE == ReadFileEx(hf, szFile, BUFFERSIZE - 1, &ol, FileIOCompletionRoutine))
-        {
-            
-            printf("Terminal failure: Unable to read from file.\n GetLastError=%08x\n", GetLastError());
-            CloseHandle(hf);
-            return;
-        
+    bool load() {
+        wstring fileName = openfilename(L"SnakeMap\0*.snakemap");
+        if (fileName != L"") {
+            matrix = {};
+            ifstream fin(fileName);
+            char buff[80];
+            int i = 0;
+            while (fin.getline(buff, 80)) {
+                matrix.push_back({});
+                for (int j = 0; buff[j] != '\0'; j++) {
+                    matrix[i].push_back(buff[j]);
+                }
+                i++;
+            }
         }
-
-        SleepEx(5000, TRUE);
-        dwBytesRead = g_BytesTransferred;
-        if (dwBytesRead > 0 && dwBytesRead <= BUFFERSIZE - 1)
-        {
-            szFile[dwBytesRead] = '\0'; // NULL character
-
-            cout<<"Data read from %s (%d bytes): \n" << dwBytesRead << endl;
-            printf("%s\n", szFile);
-        }
-        else if (dwBytesRead == 0)
-        {
-            cout << "no data\n";
-        }
-        else
-        {
-            printf("\n ** Unexpected value for dwBytesRead ** \n");
-        }
-
-        vector<int> lengthes;
-
+        return fileName != L"";
     }
+
     void displayMode(bool drawMode, bool pointMode) {
         
         SetColor();
@@ -157,18 +125,24 @@ struct MapEditor {
         
     }
    
+    void displayTile(char tile) {
+
+    }
     
     void start() {
         
         bool drawMode = false;// Чтобы процесс рисования был проще
         bool pointMode = true;
+
+        bool spawnExists= false;
         char drawTile = SPACE;
         
         bool active = true;
         int posX=0, posY=0;
         char c;
         vector<int> oldPos = { 0, 1 };
-        
+
+
         draw();
         displayMode(drawMode, pointMode);
         while (active) {
@@ -205,6 +179,9 @@ struct MapEditor {
             case 0x32:
                 drawTile = WALL;
                 break;
+            case 0x33:
+                drawTile = SPAWN;
+                break;
             case SPACE:
                 if(!pointMode) drawMode = !drawMode;
                 else {
@@ -224,7 +201,24 @@ struct MapEditor {
                 
             }
             
-            if (drawMode) matrix[posY][posX] = drawTile;
+            if (drawMode) {
+                if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
+                else {
+                    for (int i = 0; i < height; i++) {
+                        for (int j = 0; j <= width; j++) {
+                            if (matrix[i][j] == SPAWN) {
+                                SetColor();
+                                gotoxy(j, i);
+                                matrix[i][j] = SPACE;
+                                cout << SPACE;
+                                break;
+                            }
+                        }
+                    }
+                    matrix[posY][posX] = drawTile;
+                }
+            }
+            ;
             if (pointMode) drawMode = false;
             
         }
