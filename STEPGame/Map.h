@@ -184,10 +184,12 @@ struct Map {
 		gotoxy(width / 2 - 4, height / 2);
 		SetColor(Red);
 		cout << "GAME OVER";
+		PlaySound(TEXT("./Resources/gameOver.wav"), NULL, SND_ASYNC);
 		SetColor();
 		gotoxy(0, height+5);
 		system("pause");
 		system("cls");
+		PlaySound(NULL, NULL, SND_ASYNC);
 	}
 };
 
