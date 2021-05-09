@@ -31,6 +31,9 @@ int main() {
         system("cls");
         mpedit.start();
         break;
+    case 2:
+        mpedit.load();
+        break;
     case 3:
         exit(0);
         break;

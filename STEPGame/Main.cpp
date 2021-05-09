@@ -1,13 +1,34 @@
 ﻿#pragma once
 
+
+#include <iomanip>
 #include "Map.h"
 #include "Menu.h"
 #include "../SnakeMapRedactor/MapEditor.h";
+#include "Account.h"
 
 using namespace std;
 
+void showTable(vector<Account> acc) {
+	const int tableWidth = 30; // ну а чё б и нет в принципе, так удобнее и понятнее, что это за 30
+	
+	gotoxy(90 + 7, 15);
+	cout << "ТАБЛИЦА РЕКОРДОВ\n";
+	gotoxy(90, 15+1);
+	for (int i = 0; i < tableWidth; i++) cout << "=";
+	cout << endl;
 
+	for (int i = 0; i < acc.size(); i++) {
+		for (int j = 0; j < acc.size(); j++) {
+			if(acc[i].score > acc[j].score) swap(acc[i], acc[j]);
+		}
+	}
 
+	for (int i = 0; i < acc.size(); i++) {
+		gotoxy(90, 15 + 2 + i);
+		cout << acc[i].name << setw((tableWidth- acc[i].name.size()) < 0 ? 0 : tableWidth - acc[i].name.size()) << acc[i].score << endl;
+	}
+}
 
 int main() {
 	setlocale(LC_ALL, "");
@@ -28,23 +49,59 @@ int main() {
 		printRaw(logo, 80, 2, LightGreen);
 		Map mainMap;
 		CenteredMenu mainMenu;
-		vector<string> buttons = { "Новая игра", "Настройки", "Выход" };
-		int chooseMain = mainMenu.select_vertical(buttons, 108, 12) + 1;
+		vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
+		vector<Account> acc = loadAccounts();
+		int chooseMain = mainMenu.select_vertical(buttons, 105, 12) + 1;
 		system("cls");
 		switch (chooseMain) {
-		case 1:
+		case 1: {
+
+			Account a;
+
+			gotoxy(80, 20);
+			string name;
+			cout << "Введите своё имя: ";
+			cin >> name;
+
+			bool accExists = false;
+			int existingAccIndex = -1;
+			for (int i = 0; i < acc.size(); i++) {// Проверяем, существует ли такая запись
+				if (acc[i].name == name) {
+					mainMap.acc = acc[i];
+					accExists = true;
+					existingAccIndex = i;
+				}
+			}
+			if (mainMap.acc.score == -1) { // Если стоит значение по умолчанию(которое не может являться счётом)
+				mainMap.acc = { name, 0 };
+			}
+			
+			system("cls");
+			
 			mainMap.Draw();
 			mainMap.Update();
+
+			if (!accExists) acc.push_back(mainMap.acc); // Сохраняем в массив данные записи
+			else acc[existingAccIndex] = mainMap.acc;
+			saveAccounts(acc); // Сохраняем всё это в файл
 			break;
+		}
 		case 2:
+			showTable(acc);
+			break;
+		case 3: {
 			vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
 			vector<vector<string>> right = { {"Easy", "Middle", "Hard"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 
 			SettingsMenu settings;
 			map<int, int> choose = settings.startMenu(left, right);
-			
+
 			mainMap.difficulty = 4 - choose[0] - 1;
-			
+
+			break;
+		}
+		case 4:
+			exit(0);
 			break;
 		}
 		/*vector<string> gameOver = {" _____   ___  ___  ___ _____      _____  _   _  _____ ______",

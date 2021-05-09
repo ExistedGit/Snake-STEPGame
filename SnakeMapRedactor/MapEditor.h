@@ -1,10 +1,28 @@
 #pragma once
 #include <iostream>
 #include "../STEPGame/Menu.h"
+#include <shobjidl.h> 
+#include <tchar.h>
+#include <stdio.h>
+#include <strsafe.h>
 
 #define SPACE ' '
 #define WALL '#'
 #define HEAD '+'
+
+#define BUFFERSIZE 4000
+DWORD g_BytesTransferred = 0;
+
+
+VOID CALLBACK FileIOCompletionRoutine(
+    __in  DWORD dwErrorCode,
+    __in  DWORD dwNumberOfBytesTransfered,
+    __in  LPOVERLAPPED lpOverlapped)
+{
+    _tprintf(TEXT("Error code:\t%x\n"), dwErrorCode);
+    _tprintf(TEXT("Number of bytes:\t%x\n"), dwNumberOfBytesTransfered);
+    g_BytesTransferred = dwNumberOfBytesTransfered;
+}
 
 void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посимвольно копирует 
     int y = 0;
@@ -43,6 +61,74 @@ struct MapEditor {
             }
             cout << endl;
         }
+    }
+    void load() {
+        system("cls");
+        OPENFILENAME ofn;       // common dialog box structure
+        char szFile[BUFFERSIZE];   // buffer for file name
+        DWORD  dwBytesRead = 0;
+        HWND hwnd = GetConsoleWindow();              // owner window
+        HANDLE hf = NULL;              // file handle
+        OVERLAPPED ol = { 0 };
+        // Initialize OPENFILENAME
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = hwnd;
+        ofn.lpstrFile = LPWSTR(szFile);
+        // Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+        // use the contents of szFile to initialize itself.
+        ofn.lpstrFile[0] = '\0';
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = TEXT("SnakeMap\0*.SNAKEMAP\0");
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        // Display the Open dialog box. 
+
+        if (GetOpenFileName(&ofn) == TRUE)
+            hf = CreateFile(ofn.lpstrFile,
+                GENERIC_READ,
+                FILE_SHARE_READ,
+                (LPSECURITY_ATTRIBUTES)NULL,
+                OPEN_EXISTING,
+                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+                (HANDLE)NULL);
+        BOOL bErrorFlag = FALSE;
+        // Read one character less than the buffer size to save room for
+ // the terminating NULL character. 
+        
+        if (FALSE == ReadFileEx(hf, szFile, BUFFERSIZE - 1, &ol, FileIOCompletionRoutine))
+        {
+            
+            printf("Terminal failure: Unable to read from file.\n GetLastError=%08x\n", GetLastError());
+            CloseHandle(hf);
+            return;
+        
+        }
+
+        SleepEx(5000, TRUE);
+        dwBytesRead = g_BytesTransferred;
+        if (dwBytesRead > 0 && dwBytesRead <= BUFFERSIZE - 1)
+        {
+            szFile[dwBytesRead] = '\0'; // NULL character
+
+            cout<<"Data read from %s (%d bytes): \n" << dwBytesRead << endl;
+            printf("%s\n", szFile);
+        }
+        else if (dwBytesRead == 0)
+        {
+            cout << "no data\n";
+        }
+        else
+        {
+            printf("\n ** Unexpected value for dwBytesRead ** \n");
+        }
+
+        vector<int> lengthes;
+
     }
     void displayMode(bool drawMode, bool pointMode) {
         
