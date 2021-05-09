@@ -37,7 +37,7 @@ struct Map {
 
 	bool isRunning = false;	
 	
-	Snake s = Snake(width/2, height/2);
+	Snake s = Snake(width/2, height/2, 2);
 	
 	
 
@@ -107,12 +107,18 @@ struct Map {
 				}
 			}
 		}
+		for (int i = 0; i < food.size(); i++) {
+			for (int j = 0; j < walls.size(); j++) {
+				if (food[i][0] == walls[j][0] && food[i][1] == walls[j][1]) food.pop_back();
+			}
+		}
 	}
+	
 	
 
 	// Ставит в нужную точку карты змейку
 	void spawnSnake(int posX, int posY) {
-		s = Snake(posX, posY);
+		s = Snake(posX, posY, s.length);
 	}
 
 	void displayLength() {
@@ -163,7 +169,10 @@ struct Map {
 			if (_kbhit()) {
 				int c; // Переменная, в которую засовывается направление
 				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
-				if (c == VK_ESCAPE) isRunning = false; // Если нажат Escape, цикл останавливается
+				if (c == VK_ESCAPE) { // Если нажат Escape, цикл останавливается
+					isRunning = false;
+					break;
+				}
 				s.changeDirection(c);
 				snakeCheck();
 				foodCheck();

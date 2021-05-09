@@ -28,7 +28,6 @@ void saveAccounts(vector<Account> acc) {
 	ofstream fout("./scores.txt");
 	for (int i = 0; i < acc.size(); i++) {
 		fout << acc[i].name << endl << acc[i].score << endl;
-		
 	}
 	fout.close();
 }

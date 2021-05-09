@@ -277,14 +277,18 @@ struct CenteredMenu : Menu {
 struct SettingsMenu {
 	
 
-	map<int, int> startMenu(vector<string> left, vector<vector<string>> right, int posX = 1, int posY = 0) {
+	map<int, int> startMenu(vector<string> left, vector<vector<string>> right, int posX = 1, int posY = 0, vector<int> positions = {}) {
+		if (positions.empty()) {  // Массив, где каждый элемент представляет собой значение поля кнопки слева(соответствуют по индексу)
+			for (int i = 0; i < left.size(); i++) positions.push_back(0);
+		}
+
 		map<int, int> returnMap; // Возвращаемая map индексов полей к их значениям
 		char c; // Ввод
 
 		int posLeft = 0; // Позиция слева
-		vector<int> posRight = {}; // Массив, где каждый элемент представляет собой значение поля кнопки слева(соответствуют по индексу)
+		 
 		do{
-			for (int i = 0; i < left.size(); i++) posRight.push_back(0);
+			
 			int max = findMaxString(left);
 			int maxRight = 0;
 			for (int k = 0; k < right.size(); k++) {
@@ -302,12 +306,12 @@ struct SettingsMenu {
 					for (int k = 0; k < 5; k++) cout << " ";
 
 					// Если можно пролистнуть влево и/или вправо, ставим стрелочки
-					if (posRight[i] != 0) cout << "< ";
+					if (positions[i] != 0) cout << "< ";
 					else cout << "  ";
 
-					cout << right[i][posRight[i]];
-					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";// Выравнивание справа
-					if (posRight[i] != right[i].size() - 1) cout << " >";
+					cout << right[i][positions[i]];
+					for (int k = 0; k < maxRight - right[i][positions[i]].size(); k++) cout << " ";// Выравнивание справа
+					if (positions[i] != right[i].size() - 1) cout << " >";
 					else cout << "  ";
 					SetColor();
 				}
@@ -320,11 +324,11 @@ struct SettingsMenu {
 
 					
 
-					if (posRight[i] != 0) cout << "< ";
+					if (positions[i] != 0) cout << "< ";
 					else cout << "  ";
-					cout << right[i][posRight[i]];
-					for (int k = 0; k < maxRight - right[i][posRight[i]].size(); k++) cout << " ";
-					if (posRight[i] != right[i].size() - 1) cout << " >";
+					cout << right[i][positions[i]];
+					for (int k = 0; k < maxRight - right[i][positions[i]].size(); k++) cout << " ";
+					if (positions[i] != right[i].size() - 1) cout << " >";
 					else cout << "  ";
 					SetColor();
 				}
@@ -347,10 +351,10 @@ struct SettingsMenu {
 				}
 				break;
 			case KEY_RIGHT:
-				if (posRight[posLeft] < right[posLeft].size() - 1) posRight[posLeft]++;
+				if (positions[posLeft] < right[posLeft].size() - 1) positions[posLeft]++;
 				break;
 			case KEY_LEFT:
-				if (posRight[posLeft] > 0 ) posRight[posLeft]--;
+				if (positions[posLeft] > 0 ) positions[posLeft]--;
 				break;
 			case VK_ESCAPE:
 				break;
@@ -360,7 +364,7 @@ struct SettingsMenu {
 			system("cls");
 		} while (c != VK_ESCAPE);
 		for (int i = 0; i < left.size(); i++) {
-			returnMap[i] = posRight[i];
+			returnMap[i] = positions[i];
 		}
 		return returnMap;
 	}

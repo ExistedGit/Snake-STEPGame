@@ -28,14 +28,20 @@ void showTable(vector<Account> acc) {
 		gotoxy(90, 15 + 2 + i);
 		cout << acc[i].name << setw((tableWidth- acc[i].name.size()) < 0 ? 0 : tableWidth - acc[i].name.size()) << acc[i].score << endl;
 	}
+	system("pause");
 }
 
 int main() {
 	setlocale(LC_ALL, "");
+
+	
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+
 	cout.setf(ios::boolalpha);
 	ShowConsoleCursor(false);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-
+	SetConsoleTitleW(TEXT("Игра \"Змейка\""));
 	string logo = R"Main(
   ________   _____  ___         __       __   ___    _______  
  /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
@@ -44,14 +50,18 @@ int main() {
   __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
  /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
 (_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
-	
+	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
+	Map mainMap;
+	CenteredMenu mainMenu;
+	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
 	while (true) {
-		printRaw(logo, 80, 2, LightGreen);
-		Map mainMap;
-		CenteredMenu mainMenu;
-		vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
+		printRaw(logo, 80, 2 + 10, LightGreen);
+		
 		vector<Account> acc = loadAccounts();
-		int chooseMain = mainMenu.select_vertical(buttons, 105, 12) + 1;
+		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
+
+		
+
 		system("cls");
 		switch (chooseMain) {
 		case 1: {
@@ -59,21 +69,21 @@ int main() {
 			Account a;
 
 			gotoxy(80, 20);
-			string name;
+			char name[80];
 			cout << "Введите своё имя: ";
-			cin >> name;
+			cin.getline(name, 80);
 
 			bool accExists = false;
 			int existingAccIndex = -1;
 			for (int i = 0; i < acc.size(); i++) {// Проверяем, существует ли такая запись
-				if (acc[i].name == name) {
+				if (acc[i].name == (string)name) {
 					mainMap.acc = acc[i];
 					accExists = true;
 					existingAccIndex = i;
 				}
 			}
 			if (mainMap.acc.score == -1) { // Если стоит значение по умолчанию(которое не может являться счётом)
-				mainMap.acc = { name, 0 };
+				mainMap.acc = { (string)name, 0 };
 			}
 			
 			system("cls");
@@ -91,12 +101,27 @@ int main() {
 			break;
 		case 3: {
 			vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
-			vector<vector<string>> right = { {"Easy", "Middle", "Hard"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
+			vector<vector<string>> right = { {"Hard", "Middle", "Easy"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 
 			SettingsMenu settings;
-			map<int, int> choose = settings.startMenu(left, right);
+			map<int, int> choose = settings.startMenu(left, right, 90, 20, positions);
 
-			mainMap.difficulty = 4 - choose[0] - 1;
+			mainMap.difficulty = choose[0] + 1;
+			
+			switch (choose[1]) {
+			case 1:
+				mainMap.s.length += 5;
+				break;
+			case 2:
+				mainMap.s.length += 10;
+				break;
+			}
+			
+			
+			positions = {};
+			for (int i = 0; i < choose.size(); i++) {
+				positions.push_back(choose[i]);
+			}
 
 			break;
 		}
