@@ -65,6 +65,7 @@ int main() {
 		system("cls");
 		switch (chooseMain) {
 		case 1: {
+			mainMap.reset();
 
 			Account a;
 

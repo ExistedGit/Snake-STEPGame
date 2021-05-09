@@ -41,6 +41,12 @@ struct Map {
 	
 	
 
+	void reset() {
+		s = Snake(width / 2, height / 2, 2);
+		food = {};
+		score = 0;
+	}
+
 	// Отрисовывает карту в первый раз
 	void Draw(string map = "./Maps/Default.snakemap") {
 		ifstream fin(map);
@@ -180,7 +186,7 @@ struct Map {
 			}
 			Sleep(150 * difficulty);
 			s.Update();
-			s.drawSnake();
+			s.drawSnake(acc.name);
 			
 			gotoxy(0, height);
 			foodCheck();

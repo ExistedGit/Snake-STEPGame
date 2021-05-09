@@ -106,8 +106,11 @@ enum Directions {
 };
 
 struct Snake {
-	
+private: 
+	string accName = "";
+public:
 	vector<vector<int>> bodyMatrix = {};
+	
 	//Длина змейки(включая голову)
 	int length = 2;
 	//Направление
@@ -167,22 +170,26 @@ struct Snake {
 			break;
 		}
 	}
-	void drawSnake() {
-
+	void drawSnake(string name = "") {
+		accName = name;
 		for (int i = 0; i < length; i++) {
 			gotoxy(bodyMatrix[i][0], bodyMatrix[i][1]);
 			if (i == 0) {
-				SetColor(ConsoleColor::LightMagenta);
+				
+				SetColor(LightMagenta);
+				
 				cout << "+";
 				SetColor();
 			}
 			else if (i == length - 1) {
+				
 				SetColor(Green);
 				cout << ".";
 				SetColor();
 			}
 			else {
-				SetColor(LightGreen);
+				if (name == "EXISTED") SetColor(rand() % 15 + 1);
+				else SetColor(LightGreen);
 				cout << "~";
 				SetColor();
 			}
@@ -208,7 +215,7 @@ struct Snake {
 					
 					direction = key_direction[c];
 					Update();
-					drawSnake();
+					drawSnake(accName);
 					Sleep(150);
 				}
 			}
