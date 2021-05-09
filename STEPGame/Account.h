@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 using namespace std;
+
 struct Account {
 	string name;
 	int score = -1;
@@ -31,8 +32,3 @@ void saveAccounts(vector<Account> acc) {
 	}
 	fout.close();
 }
-
-
-
-
-
