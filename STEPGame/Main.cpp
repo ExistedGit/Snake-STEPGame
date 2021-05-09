@@ -28,7 +28,7 @@ void showTable(vector<Account> acc) {
 		gotoxy(90, 15 + 2 + i);
 		cout << acc[i].name << setw((tableWidth- acc[i].name.size()) < 0 ? 0 : tableWidth - acc[i].name.size()) << acc[i].score << endl;
 	}
-	system("pause");
+	system("pause>nul");
 }
 
 int main() {

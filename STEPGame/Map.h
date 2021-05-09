@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #pragma comment(lib, "winmm.lib")
 #include "Snake.h"
 #include "Account.h"
@@ -24,12 +24,12 @@ void playBiteSound() {
 }
 
 struct Map {
-	// Ширина да высота карты
+	// РЁРёСЂРёРЅР° РґР° РІС‹СЃРѕС‚Р° РєР°СЂС‚С‹
 	int width = 20, height= 20;
 	int score = 0;
 	int difficulty=HARD;
 
-	// Векторы векторов с координатами всякого. Да, я мог использовать класс COORD или соорудить свой, но различие минимально
+	// Р’РµРєС‚РѕСЂС‹ РІРµРєС‚РѕСЂРѕРІ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё РІСЃСЏРєРѕРіРѕ. Р”Р°, СЏ РјРѕРі РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєР»Р°СЃСЃ COORD РёР»Рё СЃРѕРѕСЂСѓРґРёС‚СЊ СЃРІРѕР№, РЅРѕ СЂР°Р·Р»РёС‡РёРµ РјРёРЅРёРјР°Р»СЊРЅРѕ
 	vector<vector<int>> food; 
 	vector<vector<int>> walls;
 	
@@ -47,14 +47,14 @@ struct Map {
 		score = 0;
 	}
 
-	// Отрисовывает карту в первый раз
+	// РћС‚СЂРёСЃРѕРІС‹РІР°РµС‚ РєР°СЂС‚Сѓ РІ РїРµСЂРІС‹Р№ СЂР°Р·
 	void Draw(string map = "./Maps/Default.snakemap") {
 		ifstream fin(map);
 		char c;
 		char buff[80];
 		int l = 0;
 		vector<int> snakePos = {0, 0};
-		while (fin.getline(buff, 80)) { // Переработка файла в данные матрицы
+		while (fin.getline(buff, 80)) { // РџРµСЂРµСЂР°Р±РѕС‚РєР° С„Р°Р№Р»Р° РІ РґР°РЅРЅС‹Рµ РјР°С‚СЂРёС†С‹
 			for (int i = 0; buff[i] != '\0'; i++) {
 				if (buff[i] == '#') walls.push_back({ i,l });
 				else if (buff[i] == '+') {
@@ -76,7 +76,7 @@ struct Map {
 		
 		isRunning = true;
 	}
-	void snakeCheck() { // Проверяет, не столкнулась ли змейка с препятствием
+	void snakeCheck() { // РџСЂРѕРІРµСЂСЏРµС‚, РЅРµ СЃС‚РѕР»РєРЅСѓР»Р°СЃСЊ Р»Рё Р·РјРµР№РєР° СЃ РїСЂРµРїСЏС‚СЃС‚РІРёРµРј
 		for (int i = 1; i < s.bodyMatrix.size(); i++) {
 			if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
 
@@ -88,7 +88,7 @@ struct Map {
 		}
 	}
 
-	void foodCheck() { // Проверяет, была ли съедена еда
+	void foodCheck() { // РџСЂРѕРІРµСЂСЏРµС‚, Р±С‹Р»Р° Р»Рё СЃСЉРµРґРµРЅР° РµРґР°
 		for (int i = 0; i < food.size(); i++) {
 			if (s.bodyMatrix[0][0] == food[i][0] && s.bodyMatrix[0][1] == food[i][1]) {
 				food.pop_back();
@@ -113,16 +113,24 @@ struct Map {
 				}
 			}
 		}
-		for (int i = 0; i < food.size(); i++) {
-			for (int j = 0; j < walls.size(); j++) {
-				if (food[i][0] == walls[j][0] && food[i][1] == walls[j][1]) food.pop_back();
+		if (!food.empty()) {
+			for (int i = 0; i < food.size(); i++) {
+				for (int j = 0; j < walls.size(); j++) {
+					if (food[i][0] == walls[j][0] && food[i][1] == walls[j][1])
+					{
+						gotoxy(food[i][0], food[i][1]);
+						cout << '#';
+						food.pop_back();
+						break;
+					}
+				}
 			}
 		}
 	}
 	
 	
 
-	// Ставит в нужную точку карты змейку
+	// РЎС‚Р°РІРёС‚ РІ РЅСѓР¶РЅСѓСЋ С‚РѕС‡РєСѓ РєР°СЂС‚С‹ Р·РјРµР№РєСѓ
 	void spawnSnake(int posX, int posY) {
 		s = Snake(posX, posY, s.length);
 	}
@@ -130,14 +138,14 @@ struct Map {
 	void displayLength() {
 		gotoxy(width+3, height/2);
 		SetColor(15);
-		cout << "Длина: "<< s.length;
+		cout << "Р”Р»РёРЅР°: "<< s.length;
 		SetColor();
 	}
 
 	void displayScore() {
 		gotoxy(width + 3, height / 2 - 2);
 		SetColor(15);
-		cout << "Счёт: " << score;
+		cout << "РЎС‡С‘С‚: " << score;
 		SetColor();
 	}
 
@@ -145,12 +153,12 @@ struct Map {
 		gotoxy(width + 3, height / 2 - 4);
 		cout << acc.name;
 		gotoxy(width + 3, height / 2 - 3);
-		cout << "Рекорд: " << acc.score;
+		cout << "Р РµРєРѕСЂРґ: " << acc.score;
 	}
 	
 
 	void generateFood() {
-		int posX = rand() % (width - 2) + 2;
+		int posX =rand() % (width - 2) + 2;
 		int posY = rand()%(height-3)+2;
 		
 		food.push_back({posX, posY});
@@ -168,14 +176,12 @@ struct Map {
 		while (isRunning) {
 			ShowConsoleCursor(false);
 			
-			if (food.empty()) {
-				generateFood();
-			};
+			
 			
 			if (_kbhit()) {
-				int c; // Переменная, в которую засовывается направление
-				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
-				if (c == VK_ESCAPE) { // Если нажат Escape, цикл останавливается
+				int c; // РџРµСЂРµРјРµРЅРЅР°СЏ, РІ РєРѕС‚РѕСЂСѓСЋ Р·Р°СЃРѕРІС‹РІР°РµС‚СЃСЏ РЅР°РїСЂР°РІР»РµРЅРёРµ
+				c = _getch(); // Р•СЃР»Рё РєРЅРѕРїРєР° Р±С‹Р»Р° РЅР°Р¶Р°С‚Р°, РїРµСЂРµРґР°С‘С‚ Р·РЅР°С‡РµРЅРёРµ РєРЅРѕРїРєРё РЅР° РїСЂРѕРІРµСЂРєСѓ
+				if (c == VK_ESCAPE) { // Р•СЃР»Рё РЅР°Р¶Р°С‚ Escape, С†РёРєР» РѕСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ
 					isRunning = false;
 					break;
 				}
@@ -195,6 +201,9 @@ struct Map {
 			
 
 			gotoxy(0, height+1);
+			if (food.empty()) {
+				generateFood();
+			};
 		}
 		gotoxy(width / 2 - 4, height / 2);
 		SetColor(Red);
@@ -202,7 +211,7 @@ struct Map {
 		PlaySound(TEXT("./Resources/gameOver.wav"), NULL, SND_ASYNC);
 		SetColor();
 		gotoxy(0, height+5);
-		system("pause");
+		system("pause>nul");
 		system("cls");
 		PlaySound(NULL, NULL, SND_ASYNC);
 	}

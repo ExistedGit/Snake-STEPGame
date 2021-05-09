@@ -216,7 +216,7 @@ public:
 					direction = key_direction[c];
 					Update();
 					drawSnake(accName);
-					Sleep(150);
+					Sleep(50);
 				}
 			}
 		}
