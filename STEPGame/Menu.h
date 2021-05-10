@@ -299,6 +299,11 @@ struct SettingsMenu {
 			for (int i = 0; i < left.size(); i++)
 			{
 				if (i == posLeft) {
+				
+
+					gotoxy(posX, posY + i);
+					SetColor();
+					cout << "                                              ";
 					gotoxy(posX, posY + i);
 					SetColor(0, 15);
 					cout << left[i];
@@ -316,6 +321,9 @@ struct SettingsMenu {
 					SetColor();
 				}
 				else {
+					gotoxy(posX, posY + i);
+					SetColor();
+					cout << "                                              ";
 					gotoxy(posX, posY + i);
 					SetColor(15, 0);
 					cout << left[i];
@@ -361,7 +369,6 @@ struct SettingsMenu {
 			default:
 				break;
 			}
-			system("cls");
 		} while (c != VK_ESCAPE);
 		for (int i = 0; i < left.size(); i++) {
 			returnMap[i] = positions[i];
