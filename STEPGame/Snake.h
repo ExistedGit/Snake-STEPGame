@@ -15,7 +15,9 @@ using namespace std;
 #define KEY_LEFT 75
 #define KEY_RIGHT 77
 
-
+//Easter Eggs flags
+bool g_EE_EXISTED = false,
+g_EE_RainbowDash = false;
 
 enum ConsoleColor
 {
@@ -24,6 +26,8 @@ enum ConsoleColor
 	Green = 2, Cyan = 3, Red = 4, Magenta = 5, Brown = 6, LightGray = 7, DarkGray = 8,
 	LightBlue = 9, LightGreen = 10, LightCyan = 11, LightRed = 12, LightMagenta = 13, Yellow = 14, White = 15
 };
+
+
 
 void ShowConsoleCursor(bool showFlag)
 {
@@ -107,9 +111,6 @@ enum Directions {
 };
 
 struct Snake {
-private: 
-	string accName = "";
-public:
 	vector<vector<int>> bodyMatrix = {};
 	
 	//Длина змейки(включая голову)
@@ -171,8 +172,7 @@ public:
 			break;
 		}
 	}
-	void drawSnake(string name = "") {
-		accName = name;
+	void drawSnake() {
 		for (int i = 0; i < length; i++) {
 			gotoxy(bodyMatrix[i][0], bodyMatrix[i][1]);
 			if (i == 0) {
@@ -189,8 +189,11 @@ public:
 				SetColor();
 			}
 			else {
-				if (name == "EXISTED") SetColor(rand() % 15 + 1);
-				else SetColor(LightGreen);
+				if (g_EE_EXISTED) SetColor(rand() % 15 + 1);
+				else if (g_EE_RainbowDash) {
+					int rainbow[] = { Red, Brown, Yellow, LightGreen, Cyan, Blue, Magenta };
+					SetColor(rainbow[(i-1)%7], 0);
+				} else SetColor(LightGreen);
 				cout << "~";
 				SetColor();
 			}
@@ -216,7 +219,7 @@ public:
 					
 					direction = key_direction[c];
 					Update();
-					drawSnake(accName);
+					drawSnake();
 					Sleep(50);
 				}
 			}

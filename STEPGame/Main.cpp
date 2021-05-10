@@ -9,7 +9,17 @@
 
 
 
+
 using namespace std;
+
+void easterEggCheck(string name) {
+	if (name == "EXISTED") {
+		g_EE_EXISTED = true;
+	}
+	else if (name == "Rainbow Dash") {
+		g_EE_RainbowDash = true;
+	}
+}
 
 void showTable(vector<Account> acc) {
 	const int tableWidth = 30; // ну а чё б и нет в принципе, так удобнее и понятнее, что это за 30
@@ -77,6 +87,8 @@ int main() {
 			cout << "Введите своё имя: ";
 			cin.getline(name, 80);
 
+			easterEggCheck(name);
+
 			bool accExists = false;
 			int existingAccIndex = -1;
 			for (int i = 0; i < acc.size(); i++) {// Проверяем, существует ли такая запись
@@ -89,6 +101,7 @@ int main() {
 			if (mainMap.acc.score == -1) { // Если стоит значение по умолчанию(которое не может являться счётом)
 				mainMap.acc = { (string)name, 0 };
 			}
+			
 			system("cls");
 			gotoxy(90, 20);
 			cout << "Импортировать карту?";

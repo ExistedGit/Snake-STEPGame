@@ -10,6 +10,7 @@
 
 
 
+
 #define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
 
 enum Difficulties {
@@ -49,8 +50,10 @@ struct Map {
 		s = Snake(width / 2, height / 2, 2);
 		food = {};
 		walls = {};
-
 		score = 0;
+
+		g_EE_EXISTED = false;
+		g_EE_RainbowDash = false;
 	}
 
 	// Отрисовывает карту в первый раз
@@ -208,7 +211,7 @@ struct Map {
 			}
 			Sleep(150 * difficulty);
 			s.Update();
-			s.drawSnake(acc.name);
+			s.drawSnake();
 			
 			gotoxy(0, height);
 			foodCheck();
