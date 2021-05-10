@@ -67,6 +67,9 @@ int main() {
 	wstring mapFile = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap";
 	CenteredMenu mainMenu;
 	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
+
+	int snakeLengthModifier =0 ;
+
 	while (true) {
 		printRaw(logo, 80, 2 + 10, LightGreen);
 		
@@ -79,6 +82,7 @@ int main() {
 		switch (chooseMain) {
 		case 1: {
 			mainMap.reset();
+			mainMap.s.length += snakeLengthModifier;
 
 			Account a;
 
@@ -132,10 +136,10 @@ int main() {
 			
 			switch (choose[1]) {
 			case 1:
-				mainMap.s.length += 5;
+				snakeLengthModifier = 5;
 				break;
 			case 2:
-				mainMap.s.length += 10;
+				snakeLengthModifier=10;
 				break;
 			}
 			

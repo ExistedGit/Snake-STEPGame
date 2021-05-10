@@ -118,13 +118,18 @@ struct Snake {
 	//Направление
 	int direction = UP;
 	// Конструктор шобы удобно было автоматически создавать змеюку любой длины
-	Snake(int x, int y, int len) {
-		
-		bodyMatrix.push_back(vector<int>{ x,y });
+
+	void generateSnake(int x, int y, int len) {
+		bodyMatrix = {};
+		bodyMatrix.push_back(vector<int>{ x, y });
 		for (int i = 1; i < len; i++) {
-			bodyMatrix.push_back({bodyMatrix[0][0], bodyMatrix[i-1][1] +1});
+			bodyMatrix.push_back({ bodyMatrix[0][0], bodyMatrix[i - 1][1] + 1 });
 		}
 		length = len;
+	}
+
+	Snake(int x, int y, int len) {
+		generateSnake(x, y, len);
 	}
 	void growTail() {
 		length++;
