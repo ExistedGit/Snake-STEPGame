@@ -18,6 +18,7 @@ enum DrawModes {
     POINTDRAW,
 };
 
+// Узрите же вершину моего развития, великолепные окна открытия файлов!
 
 // Если открытие отменено, возвращает L""
 wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL) {
@@ -45,6 +46,7 @@ wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND own
     return fileNameStr;
 }
 
+// Если открытие отменено, возвращает L""
 wstring savefilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL) {
 
     OPENFILENAME ofn;
