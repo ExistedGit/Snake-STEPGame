@@ -34,6 +34,7 @@ int main() {
         switch (choose) {
         case 1:
             mpedit.resizeMenu();
+            system("cls");
             mpedit.start();
             break;
         case 2:

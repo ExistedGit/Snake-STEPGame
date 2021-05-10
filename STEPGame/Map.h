@@ -57,10 +57,10 @@ struct Map {
 	void Draw(wstring map = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap") {
 		ifstream fin(map);
 		char c;
-		char buff[80];
+		char buff[320];
 		int l = 0;
 		vector<int> snakePos = {};
-		while (fin.getline(buff, 80)) { // Переработка файла в данные матрицы
+		while (fin.getline(buff, 320)) { // Переработка файла в данные матрицы
 			for (int i = 0; buff[i] != '\0'; i++) {
 				if (buff[i] == '#') walls.push_back({ i,l });
 				else if (buff[i] == '+') {

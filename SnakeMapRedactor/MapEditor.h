@@ -130,9 +130,9 @@ struct MapEditor {
         if (fileName != L"") {
             matrix = {};
             ifstream fin(fileName);
-            char buff[80];
+            char buff[320];
             int i = 0;
-            while (fin.getline(buff, 80)) {
+            while (fin.getline(buff, 320)) {
                 width = strlen(buff);
                 matrix.push_back({});
                 for (int j = 0; buff[j] != '\0'; j++) {
@@ -208,10 +208,10 @@ struct MapEditor {
         SettingsMenu resizeMenu;
         vector<string> left = { "Ширина", "Высота" };
         vector<vector<string>> right = { {}, {} };
-        for (int i = 5; i < 160; i++) {
+        for (int i = 5; i <= 160; i++) {
             right[0].push_back(to_string(i));
         }
-        for (int i = 5; i < 80; i++) {
+        for (int i = 5; i <= 60; i++) {
             right[1].push_back(to_string(i));
         }
         map<int, int> choose = resizeMenu.startMenu(left, right, 90, 20, {80-5, 40-5});
