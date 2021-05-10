@@ -7,6 +7,8 @@
 #include "../SnakeMapRedactor/MapEditor.h";
 #include "Account.h"
 
+
+
 using namespace std;
 
 void showTable(vector<Account> acc) {
@@ -52,6 +54,7 @@ int main() {
 (_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
+	wstring mapFile = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap";
 	CenteredMenu mainMenu;
 	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
 	while (true) {
@@ -86,10 +89,15 @@ int main() {
 			if (mainMap.acc.score == -1) { // Если стоит значение по умолчанию(которое не может являться счётом)
 				mainMap.acc = { (string)name, 0 };
 			}
-			
+			system("cls");
+			gotoxy(90, 20);
+			cout << "Импортировать карту?";
+			int loadMap = mainMenu.select_vertical({ "Да", "Нет" }, 98, 21) + 1;
+			if (loadMap == 1) mapFile = openfilename(L"SnakeMap\0*.snakemap\0");
+			else mapFile = DEFAULT_MAP_FILE;
 			system("cls");
 			
-			mainMap.Draw();
+			mainMap.Draw(mapFile);
 			mainMap.Update();
 
 			if (!accExists) acc.push_back(mainMap.acc); // Сохраняем в массив данные записи

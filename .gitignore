@@ -13,6 +13,10 @@
 # Text files such as file with scores
 *.txt
 
+#Experimental snakemaps except the default one
+*.snakemap
+!Default.snakemap
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

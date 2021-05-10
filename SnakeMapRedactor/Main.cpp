@@ -28,12 +28,12 @@ int main() {
     vector<string> buttons = {"Создать карту", "Открыть карту", "Выйти"};
     MapEditor mpedit;
     while (true) {
-        printRaw(logo, 80, 2, Cyan);
-        int choose = mainMenu.select_vertical(buttons, 95, 17) + 1; // Менюшка кароче на координатах прямо под логотипом и где-то как раз в середине
+        printRaw(logo, 90, 12, Cyan);
+        int choose = mainMenu.select_vertical(buttons, 105, 27) + 1; // Менюшка кароче на координатах прямо под логотипом и где-то как раз в середине
         system("cls");
         switch (choose) {
         case 1:
-            
+            mpedit.resizeMenu();
             mpedit.start();
             break;
         case 2:
@@ -43,5 +43,7 @@ int main() {
             exit(0);
             break;
         }
+
+        system("cls");
     }
 }

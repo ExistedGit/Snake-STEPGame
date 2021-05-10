@@ -1,21 +1,25 @@
-#pragma once
+Ôªø#pragma once
 #include <iostream>
 #include "../STEPGame/Menu.h"
-#include <shobjidl.h> 
+#include <shobjidl_core.h> 
 #include <tchar.h>
 #include <stdio.h>
 #include <strsafe.h>
 
+
 #define SPACE ' '
 #define WALL '#'
 #define SPAWN '+'
+#define PORTAL '0'
 
-#define BUFFERSIZE 4000
-DWORD g_BytesTransferred = 0;
+enum DrawModes {
+    MOVE = 0,
+    DRAW,
+    POINTDRAW,
+};
 
 
-
-// Returns an empty string if dialog is canceled
+// –ï—Å–ª–∏ –æ—Ç–∫—Ä—ã—Ç–∏–µ –æ—Ç–º–µ–Ω–µ–Ω–æ, –≤–æ–∑–≤—Ä–∞—â–∞–µ—Ç L""
 wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL) {
 
     OPENFILENAME ofn;
@@ -28,7 +32,8 @@ wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND own
     ofn.hwndOwner = owner;
     ofn.lpstrFilter = filter;
     ofn.lpstrFile = (LPWSTR)fileName;
-    ofn.lpstrTitle = L"ŒÚÍ˚Ú¸ Í‡ÚÛ «ÏÂÈÍË...";
+    ofn.lpstrTitle = L"–û—Ç–∫—Ä—ã—Ç—å –∫–∞—Ä—Ç—É –ó–º–µ–π–∫–∏...";
+    ofn.lpstrInitialDir = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps";
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
     ofn.lpstrDefExt = L"";
@@ -40,7 +45,35 @@ wstring openfilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND own
     return fileNameStr;
 }
 
-void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // œÓÒËÏ‚ÓÎ¸ÌÓ ÍÓÔËÛÂÚ 
+wstring savefilename(const wchar_t* filter = L"All Files (*.*)\0*.*\0", HWND owner = NULL) {
+
+    OPENFILENAME ofn;
+    wchar_t fileName[MAX_PATH] = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Untitled.snakemap";
+    ZeroMemory(&ofn, sizeof(ofn));
+
+
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrFile = (LPWSTR)fileName;
+    ofn.lpstrTitle = L"–°–æ—Ö—Ä–∞–Ω–∏—Ç—å –∫–∞—Ä—Ç—É –ó–º–µ–π–∫–∏...";
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = L"";
+    ofn.lpstrInitialDir = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps";
+    wstring fileNameStr;
+    if (GetSaveFileName(&ofn))
+        fileNameStr = fileName;
+
+    return fileNameStr;
+}
+bool fileExists(const wstring name) {
+    ifstream f(name.c_str());
+    return f.good();
+}
+
+void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // –ü–æ—Å–∏–º–≤–æ–ª—å–Ω–æ –∫–æ–ø–∏—Ä—É–µ—Ç 
     int y = 0;
     SetColor(fg, bg);
     for (int i = 0; i < raw.size(); i++) {
@@ -56,22 +89,34 @@ void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // œÓÒËÏ‚ÓÎ¸Ì
 struct MapEditor {
     int width = 40, height = 40;
     vector<vector<char>> matrix;
+
     
-    
-    
-    
-    MapEditor() {
+    void generateMap() {
+        matrix = {};
         for (int i = 0; i < height; i++) {
             matrix.push_back({});
-            for (int j = 0; j < width; j++) {
+            if (0 == i || i == height - 1) {
+                for (int j = 0; j < width; j++) {
+                    matrix[i].push_back(WALL);
+                }
+            }
+            else {
+                matrix[i].push_back(WALL);
+                for (int j = 1; j < width - 1; j++) {
+                    matrix[i].push_back(SPACE);
+                }
                 matrix[i].push_back(WALL);
             }
         }
-        
     }
+    
+    MapEditor() {
+        generateMap();
+    }
+
     void draw() {
         for (int i = 0; i < height; i++) {
-            for (int j = 0; j <= width; j++) {
+            for (int j = 0; j < width; j++) {
                 SetColor(15, 0);
                 
                 cout << matrix[i][j];
@@ -81,62 +126,110 @@ struct MapEditor {
         }
     }
     bool load() {
-        wstring fileName = openfilename(L"SnakeMap\0*.snakemap");
+        wstring fileName = openfilename(L"SnakeMap\0*.snakemap\0");
         if (fileName != L"") {
             matrix = {};
             ifstream fin(fileName);
             char buff[80];
             int i = 0;
             while (fin.getline(buff, 80)) {
+                width = strlen(buff);
                 matrix.push_back({});
                 for (int j = 0; buff[j] != '\0'; j++) {
                     matrix[i].push_back(buff[j]);
                 }
                 i++;
             }
+            height = i;
         }
         return fileName != L"";
     }
 
-    void displayMode(bool drawMode, bool pointMode) {
+    void save() {
+        wstring fileName = savefilename(L"SnakeMap(*.snakemap)\0*.snakemap\0Text(*.txt)\0*.txt\0");
+        
+        if (fileExists(fileName))
+        {
+            if (MessageBox(GetConsoleWindow(), L"–≠—Ç–æ—Ç —Ñ–∞–π–ª —É–∂–µ —Å—É—â–µ—Å—Ç–≤—É–µ—Ç. –í—ã —Ç–æ—á–Ω–æ —Ö–æ—Ç–∏—Ç–µ –µ–≥–æ –ø–µ—Ä–µ–∑–∞–ø–∏—Å–∞—Ç—å?", L"–í–Ω–∏–º–∞–Ω–∏–µ!", MB_ICONWARNING | MB_YESNO) != IDNO) {
+                ofstream fout(fileName);
+                for (int i = 0; i < height; i++) {
+                    for (int j = 0; j < width; j++) {
+                        fout << matrix[i][j];
+                    }
+                    fout << endl;
+                }
+                fout.close();
+            }
+            else return;
+        }
+        else {
+            ofstream fout(fileName);
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    fout << matrix[i][j];
+                }
+                fout << endl;
+            }
+            fout.close();
+        }
+        
+    }
+
+    void displayMode(int drawMode) {
         
         SetColor();
-        gotoxy(width / 2 - 10, height + 2);
-        for (int i = 0; i < 30; i++) cout << " ";
-        gotoxy(width / 2 - 10, height + 2);
-        cout << "–ÂÊËÏ: ";
-
-        if (!drawMode) {
-            cout << "œÂÂÏÂ˘ÂÌËÂ";
-        }
-        else if (drawMode && !pointMode) {
-
-            cout << "–ËÒÓ‚‡ÌËÂ";
-        }
-        else if (drawMode && pointMode) {
-            cout << "“Ó˜Â˜ÌÓÂ ËÒÓ‚‡ÌËÂ";
-        }
+        vector<string> drawModes = { "Z - –ü–µ—Ä–µ–º–µ—â–µ–Ω–∏–µ", "X - –†–∏—Å–æ–≤–∞–Ω–∏–µ –ø–µ—Ä–µ–º–µ—â–µ–Ω–∏–µ–º", "C - –¢–æ—á–µ—á–Ω–æ–µ —Ä–∏—Å–æ–≤–∞–Ω–∏–µ" };
         
-        gotoxy(width + 2, height / 1.5);
-        cout << "  ";
-        if (!drawMode) cout << "+";
-        else if (drawMode && !pointMode)cout << "*";
-        else if (drawMode && pointMode)cout << "*.";
+        for (int i = 0; i < drawModes.size(); i++) {
+            gotoxy(width + 2, height / 2 - 3 + i);
+            if (drawMode == i) SetColor(0, 15);
+            cout << drawModes[i];
+            SetColor();
+        }
         
     }
    
     void displayTile(char tile) {
-
+        SetColor();
+        vector<string> tileNames = { "1 - –ü—Ä–æ–±–µ–ª", "2 - –°—Ç–µ–Ω–∞", "3 - –¢–æ—á–∫–∞ —Å–ø–∞–≤–Ω–∞", "4 - –ü–æ—Ä—Ç–∞–ª"};
+        vector<char> tileTypes = {SPACE, WALL, SPAWN, PORTAL};
+        
+        for (int i = 0; i < tileTypes.size(); i++) {
+            gotoxy(width + 2, height / 2 + 2 + i);
+            if (tile == tileTypes[i]) {
+                SetColor(0, 15);
+            }
+            cout << tileNames[i];
+            SetColor();
+        }
     }
     
+    void resizeMenu() {
+        SettingsMenu resizeMenu;
+        vector<string> left = { "–®–∏—Ä–∏–Ω–∞", "–í—ã—Å–æ—Ç–∞" };
+        vector<vector<string>> right = { {}, {} };
+        for (int i = 5; i < 160; i++) {
+            right[0].push_back(to_string(i));
+        }
+        for (int i = 5; i < 80; i++) {
+            right[1].push_back(to_string(i));
+        }
+        map<int, int> choose = resizeMenu.startMenu(left, right, 90, 20, {80-5, 40-5});
+        
+        width = choose[0] + 5;
+        height = choose[1] + 5;
+        generateMap();
+    }
+
     void start() {
         
-        bool drawMode = false;// ◊ÚÓ·˚ ÔÓˆÂÒÒ ËÒÓ‚‡ÌËˇ ·˚Î ÔÓ˘Â
-        bool pointMode = true;
+        int drawMode = MOVE;
 
         bool spawnExists= false;
         char drawTile = SPACE;
         
+
+
         bool active = true;
         int posX=0, posY=0;
         char c;
@@ -144,8 +237,10 @@ struct MapEditor {
 
 
         draw();
-        displayMode(drawMode, pointMode);
+        displayMode(drawMode);
         while (active) {
+            displayMode(drawMode);
+            displayTile(drawTile);
 
             gotoxy(oldPos[0], oldPos[1]);
             SetColor(15, 0);
@@ -165,13 +260,13 @@ struct MapEditor {
                 if (posY > 0) posY--;
                 break;
             case KEY_DOWN:
-                if (posY < height-1) posY++;
+                if (posY < height - 1) posY++;
                 break;
             case KEY_RIGHT:
                 if (posX < width - 1)posX++;
                 break;
             case KEY_LEFT:
-                if (posX >0)posX--;
+                if (posX > 0)posX--;
                 break;
             case 0x31:
                 drawTile = SPACE;
@@ -182,17 +277,41 @@ struct MapEditor {
             case 0x33:
                 drawTile = SPAWN;
                 break;
-            case SPACE:
-                if(!pointMode) drawMode = !drawMode;
-                else {
-                    drawMode = true;
-                }
-                displayMode(drawMode, pointMode);
+            case 0x34:
+                drawTile = PORTAL;
                 break;
             case 'z': case 'Z':
-                pointMode = !pointMode;
-                displayMode(drawMode, pointMode);
+                drawMode = MOVE;
                 break;
+            case 'x': case 'X':
+                drawMode = DRAW;
+                break;
+            case 'c': case 'C':
+                drawMode = POINTDRAW;
+                break;
+            case VK_SPACE:
+                if (drawMode == POINTDRAW) {
+                    if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
+                    else {
+                        for (int i = 0; i < height; i++) {
+                            for (int j = 0; j < width; j++) {
+                                if (matrix[i][j] == SPAWN) {
+                                    SetColor();
+                                    gotoxy(j, i);
+                                    matrix[i][j] = SPACE;
+                                    cout << SPACE;
+                                    break;
+                                }
+                            }
+                        }
+                        matrix[posY][posX] = drawTile;
+                    }
+                }
+                break;
+            case 's': case 'S':
+                save();
+                break;
+            
             case VK_ESCAPE:
                 active = false;
                 break;
@@ -201,11 +320,11 @@ struct MapEditor {
                 
             }
             
-            if (drawMode) {
+            if (drawMode == DRAW) {
                 if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
                 else {
                     for (int i = 0; i < height; i++) {
-                        for (int j = 0; j <= width; j++) {
+                        for (int j = 0; j < width; j++) {
                             if (matrix[i][j] == SPAWN) {
                                 SetColor();
                                 gotoxy(j, i);
@@ -218,8 +337,7 @@ struct MapEditor {
                     matrix[posY][posX] = drawTile;
                 }
             }
-            ;
-            if (pointMode) drawMode = false;
+            
             
         }
     }

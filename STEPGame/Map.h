@@ -1,25 +1,29 @@
 ﻿#pragma once
+
 #pragma comment(lib, "winmm.lib")
+
 #include "Snake.h"
 #include "Account.h"
-#include <thread>
+#include <mmsystem.h>
+#include<stdlib.h>
 
 
 
 
-
+#define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
 
 enum Difficulties {
 	HARD = 1,
 	MIDDLE,
 	EASY
 };
+
 using namespace std;
 
 
 
 void playBiteSound() {
-	PlaySound(TEXT("./Resources/bite.wav"), NULL, SND_ASYNC);
+	PlaySound(L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Resources\\bite.wav", NULL, SND_FILENAME | SND_ASYNC);
 	//mciSendString(TEXT("./Resources/bite.wav"), NULL, 0, NULL);
 }
 
@@ -44,16 +48,18 @@ struct Map {
 	void reset() {
 		s = Snake(width / 2, height / 2, 2);
 		food = {};
+		walls = {};
+
 		score = 0;
 	}
 
 	// Отрисовывает карту в первый раз
-	void Draw(string map = "./Maps/Default.snakemap") {
+	void Draw(wstring map = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap") {
 		ifstream fin(map);
 		char c;
 		char buff[80];
 		int l = 0;
-		vector<int> snakePos = {0, 0};
+		vector<int> snakePos = {};
 		while (fin.getline(buff, 80)) { // Переработка файла в данные матрицы
 			for (int i = 0; buff[i] != '\0'; i++) {
 				if (buff[i] == '#') walls.push_back({ i,l });
@@ -72,6 +78,10 @@ struct Map {
 			gotoxy(walls[i][0], walls[i][1]);
 			cout << "#";
 		}
+		if (snakePos.empty()) {
+			snakePos = {width/2, height/2};
+		}
+
 		spawnSnake(snakePos[0], snakePos[1]);
 		
 		isRunning = true;
@@ -161,6 +171,13 @@ struct Map {
 		int posX =rand() % (width - 2) + 2;
 		int posY = rand()%(height-3)+2;
 		
+		for (int i = 0; i < walls.size(); i++) {
+			if (walls[i][0] == posX && walls[i][1] == posY) {
+				generateFood();
+				return;
+			}
+		}
+
 		food.push_back({posX, posY});
 		gotoxy(food[food.size()-1][0], food[food.size() - 1][1]);
 		SetColor(LightRed);
@@ -169,7 +186,6 @@ struct Map {
 	}
 
 	void Update() {
-		thread stopSound;
 		displayLength();
 		displayScore();
 		displayAcc();
@@ -208,7 +224,7 @@ struct Map {
 		gotoxy(width / 2 - 4, height / 2);
 		SetColor(Red);
 		cout << "GAME OVER";
-		PlaySound(TEXT("./Resources/gameOver.wav"), NULL, SND_ASYNC);
+		PlaySound(L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Resources\\gameOver.wav", NULL, SND_ASYNC | SND_FILENAME);
 		SetColor();
 		gotoxy(0, height+5);
 		system("pause>nul");
