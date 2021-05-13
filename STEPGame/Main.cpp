@@ -70,6 +70,9 @@ int main() {
 
 	int snakeLengthModifier =0 ;
 
+	
+	
+
 	while (true) {
 		printRaw(logo, 80, 2 + 10, LightGreen);
 		
@@ -155,7 +158,7 @@ int main() {
 			exit(0);
 			break;
 		}
-		
 		system("cls");
 	}
+	
 }

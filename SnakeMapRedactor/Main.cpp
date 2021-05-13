@@ -1,13 +1,17 @@
-#pragma once
+п»ї#pragma once
 #pragma comment(lib, "winmm.lib")
 #include "MapEditor.h"
 #include <windows.h>
+#include <thread>
 
-int main() {
+int main(int argc, char** argv) {
     setlocale(LC_ALL, "");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+
+    
+
     string logo = R"MAP(
            __  __          _____          
           |  \/  |   /\   |  __ \         
@@ -22,13 +26,56 @@ int main() {
  | |____| |__| || |_   | | | |__| | | \ \ 
  |______|_____/_____|  |_|  \____/|_|  \_\
 )MAP";
-    
+
     CenteredMenu mainMenu;
-    vector<string> buttons = {"Создать карту", "Открыть карту", "Выйти"};
+    vector<string> buttons = {"РЎРѕР·РґР°С‚СЊ РєР°СЂС‚Сѓ", "РћС‚РєСЂС‹С‚СЊ РєР°СЂС‚Сѓ", "Р’С‹Р№С‚Рё"};
     MapEditor mpedit;
+    
+    SetUpRegistry();
+
+
+    
+    
+
+
+    if (argc == 2) {
+        if (mpedit.loadWithContext(argv[1])) {
+            mpedit.start();
+        }
+        else {
+            //thread warn([]() {
+            //    while (true) {
+            //        
+            //        
+            //        gotoxy(0, 0);
+            //        SetColor(Red);
+            //        cout << "Р¤Р°Р№Р» РїСѓСЃС‚!\n";
+            //       
+            //        Sleep(1000);
+
+            //        gotoxy(0, 0);
+
+            //        SetColor(LightRed);
+            //        cout << "Р¤Р°Р№Р» РїСѓСЃС‚!\n";
+            //        Sleep(1000);
+            //        
+            //    }
+            //    });
+            //gotoxy(0, 1);
+            //SetColor();
+            //system("pause");
+            //warn.detach();
+            mpedit.resizeMenu();
+            system("cls");
+            mpedit.start();
+            system("cls");
+        }
+        
+    }
+
     while (true) {
         printRaw(logo, 90, 12, Cyan);
-        int choose = mainMenu.select_vertical(buttons, 105, 27) + 1; // Менюшка кароче на координатах прямо под логотипом и где-то как раз в середине
+        int choose = mainMenu.select_vertical(buttons, 105, 27) + 1; // РњРµРЅСЋС€РєР° РєР°СЂРѕС‡Рµ РЅР° РєРѕРѕСЂРґРёРЅР°С‚Р°С… РїСЂСЏРјРѕ РїРѕРґ Р»РѕРіРѕС‚РёРїРѕРј Рё РіРґРµ-С‚Рѕ РєР°Рє СЂР°Р· РІ СЃРµСЂРµРґРёРЅРµ
         system("cls");
         switch (choose) {
         case 1:

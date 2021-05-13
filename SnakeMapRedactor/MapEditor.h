@@ -5,7 +5,7 @@
 #include <tchar.h>
 #include <stdio.h>
 #include <strsafe.h>
-
+#include <shlobj_core.h>
 
 #define SPACE ' '
 #define WALL '#'
@@ -88,6 +88,39 @@ void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посим
     SetColor();
 }
 
+void RegSet(HKEY hkeyHive, const wchar_t* pszVar, const wchar_t* pszValue) { // Записывает редактор в регистр как программу для открытия снейкмепов
+
+    HKEY hkey;
+
+    wchar_t szValueCurrent[1000];
+    DWORD dwType;
+    DWORD dwSize = sizeof(szValueCurrent);
+
+    int iRC = RegGetValue(hkeyHive, pszVar, NULL, RRF_RT_ANY, &dwType, szValueCurrent, &dwSize);
+
+    bool bDidntExist = iRC == ERROR_FILE_NOT_FOUND;
+
+    if (!bDidntExist) return;
+
+    DWORD dwDisposition;
+    iRC = RegCreateKeyEx(hkeyHive, pszVar, 0, 0, 0, KEY_ALL_ACCESS, NULL, &hkey, &dwDisposition);
+
+    iRC = RegSetValueEx(hkey, L"", 0, REG_SZ, (BYTE*)pszValue, (lstrlenW(pszValue) + 1) * sizeof(wchar_t));
+
+    RegCloseKey(hkey);
+}
+
+int SetUpRegistry() {
+
+    
+
+    RegSet(HKEY_CLASSES_ROOT, L"SystemFileAssociations\\.snakemap\\Shell\\Открыть редактором карт\\Command", L"\"C:\\Users\\paytv\\source\\repos\\STEPGame\\Debug\\SnakeMapEditor.exe\" \"%1\"");
+
+    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+    return 0;
+}
+
+
 struct MapEditor {
     int width = 40, height = 40;
     vector<vector<char>> matrix;
@@ -127,6 +160,23 @@ struct MapEditor {
             cout << endl;
         }
     }
+    bool loadWithContext(char* fileName) {
+        matrix = {};
+        ifstream fin(fileName);
+        char buff[320];
+        int i = 0;
+        while (fin.getline(buff, 320)) {
+            width = strlen(buff);
+            matrix.push_back({});
+            for (int j = 0; buff[j] != '\0'; j++) {
+                matrix[i].push_back(buff[j]);
+            }
+            i++;
+        }
+        height = i;
+        return i > 0;
+    }
+
     bool load() {
         wstring fileName = openfilename(L"SnakeMap\0*.snakemap\0");
         if (fileName != L"") {

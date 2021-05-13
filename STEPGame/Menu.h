@@ -77,135 +77,6 @@ struct Menu {
 		SetColor(7, 0);
 		return pos;
 	}
-
-	/*int select_horizontal(vector <string> menu, int posX = 1, int posY = 0) {
-		char c;
-		int pos = 0;
-		int j = 0;
-		do
-		{
-			for (int i = 0; i < menu.size(); i++)
-			{
-
-				if (i == pos)
-				{
-					SetColor(fgactive, bgactive);
-
-
-					gotoxy(posX + j + 1, posY);
-					cout << menu[i];
-					SetColor(fgdefault, bgdefault);
-					cout << " ";
-					j += menu[i].size();
-				}
-				else
-				{
-					SetColor(fgdefault, bgdefault);
-					gotoxy(posX + j + 1, posY);
-					cout << menu[i];
-					SetColor(fgactive, bgactive);
-					cout << " ";
-					j += menu[i].size();
-				}
-
-			}
-			c = _getch();
-			switch (c)
-			{
-			case 75:
-				if (pos > 0)
-					pos--;
-				else {
-					pos = menu.size() - 1;
-				}
-				break;
-			case 77:
-				if (pos < menu.size() - 1)
-					pos++;
-				else {
-					pos = 0;
-				}
-				break;
-			case 13:
-				break;
-			default:
-				break;
-			}
-			j = 0;
-		} while (c != 13);
-		SetColor(7, 0);
-		return pos;
-	}*/
-
-	/*void select_settings(map<string, vector<string>> menu, int& line, int& col, int posX = 1, int posY = 0) {
-		char c;
-		int posLine = 0, posCol = 0;
-
-		do
-		{
-
-			for (int i = 0; i < menu.size(); i++)
-			{
-				if (i == posLine)
-				{
-					SetColor(fgactive, bgactive);
-					gotoxy(posX, posY + i);
-					cout << "                      ";
-					gotoxy(posX, posY + i);
-					cout << menu[i] << endl;
-					SetColor(fgdefault, bgdefault);
-				}
-				else
-				{
-					SetColor(fgdefault, bgdefault);
-					gotoxy(posX, posY + i);
-					cout << "                      ";
-					int len = menu[i].length();
-					gotoxy(posX, posY + i);
-					cout << menu[i] << endl;
-					SetColor(fgactive, bgactive);
-				}
-
-			}
-			c = _getch();
-			switch (c)
-			{
-			case 72:
-				if (posLine > 0)
-					posLine--;
-				else {
-					posLine = menu.size() - 1;
-				}
-				break;
-			case 80:
-				if (posLine < menu.size() - 1)
-					posLine;
-				else {
-					posLine = 0;
-				}
-				break;
-			case 75:
-				if (posCol > 0)
-					posCol--;
-				else {
-					posCol = menu.size() - 1;
-				}
-				break;
-			case 77:
-				if (posCol < menu.size() - 1)
-					posCol;
-				else {
-					posCol= 0;
-				}
-				break;
-			case 13:
-				break;
-			default:
-				break;
-			}
-		} while (c != 13);
-		SetColor(7, 0);
-	}*/
 };
 
 struct CenteredMenu : Menu {
@@ -224,9 +95,10 @@ struct CenteredMenu : Menu {
 					SetColor(fgactive, bgactive);
 					gotoxy(posX-1, posY + i);
 					cout << " ";
-					for (int i = 0; i < max; i++) cout << " ";
-					cout << " ";
-					gotoxy(posX + (max - menu[i].size()) / 2, posY + i);
+					if (max - menu[i].size() == 1) cout << " ";
+					for (int i = 0; i < max; i++) cout << " "; // Более-менее красивое выравнивание получается так
+					if (max - menu[i].size() != 1) cout << " ";
+					gotoxy(posX+ (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
 					cout << menu[i] << endl;
 					
 					SetColor(fgdefault, bgdefault);
@@ -236,9 +108,10 @@ struct CenteredMenu : Menu {
 					SetColor(fgdefault, bgdefault);
 					gotoxy(posX-1, posY + i);
 					cout << " ";
+					if (max - menu[i].size() == 1) cout << " ";
 					for (int i = 0; i < max; i++) cout << " ";
-					cout << " ";
-					gotoxy(posX + (max - menu[i].size()) / 2, posY + i);
+					if (max - menu[i].size() != 1) cout << " ";
+					gotoxy(posX + (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
 					cout << menu[i] << endl;
 					SetColor(fgactive, bgactive);
 				}

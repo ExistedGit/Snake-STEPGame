@@ -8,10 +8,17 @@
 #include<stdlib.h>
 
 
-
+wstring ExePath() {
+	TCHAR buffer[MAX_PATH] = { 0 };
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+	return std::wstring(buffer).substr(0, pos);
+}
 
 
 #define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
+
+
 
 enum Difficulties {
 	HARD = 1,
@@ -218,7 +225,6 @@ struct Map {
 			snakeCheck();
 			
 			
-
 			gotoxy(0, height+1);
 			if (food.empty()) {
 				generateFood();
