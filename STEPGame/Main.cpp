@@ -184,11 +184,11 @@ int main() {
 			break;
 		}
 		case 4:
-			musicThread.detach();
+			//musicThread.detach();
 			exit(0);
 			break;
 		}
-		musicThread.detach();
+		//musicThread.detach();
 		system("cls");
 
 	}
