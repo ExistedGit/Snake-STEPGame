@@ -7,6 +7,8 @@
 #include <mmsystem.h>
 #include<stdlib.h>
 
+#define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
+
 
 wstring ExePath() {
 	TCHAR buffer[MAX_PATH] = { 0 };
@@ -14,10 +16,6 @@ wstring ExePath() {
 	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
 	return std::wstring(buffer).substr(0, pos);
 }
-
-
-#define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
-
 
 
 enum Difficulties {
@@ -64,7 +62,15 @@ struct Map {
 	}
 
 	// Отрисовывает карту в первый раз
-	void Draw(wstring map = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap") {
+	void Draw(wstring map = L"") {
+		
+		if (map == L"") {
+			wchar_t buff[MAX_PATH];
+			GetModuleFileName(NULL, buff, MAX_PATH);
+
+			
+		}
+		
 		ifstream fin(map);
 		char c;
 		char buff[320];

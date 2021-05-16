@@ -6,6 +6,7 @@
 #include <map>
 #include <conio.h>
 #include <fstream>
+#include "FormatText.h"
 using namespace std;
 
 
@@ -41,67 +42,9 @@ void ShowConsoleCursor(bool showFlag)
 }
 
 
-void SetColor(int text = 7, int background = 0) {
-	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hStdOut, (WORD)((background << 4) | text));
-};
 
-void gotoxy(int x, int y)
-{
-	COORD coord;
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-}
 
-template <class T>
-void addElement(T*& a, int& n, T elem, int index = -1) {
-	if (index == -1) index = n-1;
-	if (n < index) return;
-	n++;
-	T* p = new T[n];
-	int shift = 0;
-	for (size_t i = 0; i < n; i++)
-	{
-		if (i == index)
-		{
-			p[i] = elem;
-			shift = 1;
-			continue;
-		}
-		p[i] = a[i - shift];
-	}
 
-	a = p;
-}
-
-template <class T>
-void removeElement(T*& a, int& n, int index = -1) {
-	if (index == -1) index = n;
-	if (n < index) return;
-
-	T* p = new T[n - 1];
-	for (int i = 0; i < index; i++) {
-		p[i] = a[i];
-	}
-	for (int i = index + 1; i < n; i++) {
-		p[i - 1] = a[i];
-	}
-	delete[]a;
-	n--;
-	a = p;	
-}
-
-// Показывает на экран матрицу а.
-template <class T>
-void showMatrix(T** a, int row, int col) {
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			cout << a[i][j] << " ";
-		}
-		cout << endl;
-	}
-}
 
 enum Directions {
 	UP = 1,

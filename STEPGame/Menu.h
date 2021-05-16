@@ -99,7 +99,7 @@ struct CenteredMenu : Menu {
 					for (int i = 0; i < max; i++) cout << " "; // Более-менее красивое выравнивание получается так
 					if (max - menu[i].size() != 1) cout << " ";
 					gotoxy(posX+ (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
-					cout << menu[i] << endl;
+					cout << menu[i];
 					
 					SetColor(fgdefault, bgdefault);
 				}
@@ -112,7 +112,7 @@ struct CenteredMenu : Menu {
 					for (int i = 0; i < max; i++) cout << " ";
 					if (max - menu[i].size() != 1) cout << " ";
 					gotoxy(posX + (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
-					cout << menu[i] << endl;
+					cout << menu[i];
 					SetColor(fgactive, bgactive);
 				}
 

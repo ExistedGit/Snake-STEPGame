@@ -4,13 +4,14 @@
 #include <iomanip>
 #include "Map.h"
 #include "Menu.h"
-#include "../SnakeMapRedactor/MapEditor.h";
+#include "../SnakeMapRedactor/MapEditor.h"
 #include "Account.h"
+#include <filesystem>
 
-
-
+#include "FormatText.h"
 
 using namespace std;
+using std::filesystem::current_path;
 
 void easterEggCheck(string name) {
 	if (name == "EXISTED") {

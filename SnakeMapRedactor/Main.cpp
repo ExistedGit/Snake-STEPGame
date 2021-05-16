@@ -9,9 +9,7 @@ int main(int argc, char** argv) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-
     
-
     string logo = R"MAP(
            __  __          _____          
           |  \/  |   /\   |  __ \         
@@ -43,30 +41,9 @@ int main(int argc, char** argv) {
             mpedit.start();
         }
         else {
-            //thread warn([]() {
-            //    while (true) {
-            //        
-            //        
-            //        gotoxy(0, 0);
-            //        SetColor(Red);
-            //        cout << "Файл пуст!\n";
-            //       
-            //        Sleep(1000);
-
-            //        gotoxy(0, 0);
-
-            //        SetColor(LightRed);
-            //        cout << "Файл пуст!\n";
-            //        Sleep(1000);
-            //        
-            //    }
-            //    });
-            //gotoxy(0, 1);
-            //SetColor();
-            //system("pause");
-            //warn.detach();
             mpedit.resizeMenu();
             system("cls");
+
             mpedit.start();
             system("cls");
         }

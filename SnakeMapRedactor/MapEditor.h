@@ -1,11 +1,12 @@
 ﻿#pragma once
 #include <iostream>
 #include "../STEPGame/Menu.h"
+#include "../STEPGame/FormatText.h"
 #include <shobjidl_core.h> 
 #include <tchar.h>
 #include <stdio.h>
-#include <strsafe.h>
 #include <shlobj_core.h>
+
 
 #define SPACE ' '
 #define WALL '#'
@@ -88,7 +89,7 @@ void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посим
     SetColor();
 }
 
-void RegSet(HKEY hkeyHive, const wchar_t* pszVar, const wchar_t* pszValue) { // Записывает редактор в регистр как программу для открытия снейкмепов
+void RegSet(HKEY hkeyHive, const wchar_t* pszVar, const wchar_t* pszValue) { // Удобная функция записи в регистр
 
     HKEY hkey;
 
@@ -110,14 +111,41 @@ void RegSet(HKEY hkeyHive, const wchar_t* pszVar, const wchar_t* pszValue) { // 
     RegCloseKey(hkey);
 }
 
-int SetUpRegistry() {
+void SetUpRegistry() { // Записывает редактор в регистр как программу для открытия снейкмепов
 
+    wchar_t pszValue[MAX_PATH] = L"\"";
+    wchar_t buff[MAX_PATH];
+    GetModuleFileName(NULL, buff, MAX_PATH);
+    lstrcat(pszValue, buff);
+
+    wchar_t buff2[MAX_PATH] = L"\" \"%1\"";
+    lstrcat(pszValue, buff2);
+
+    wchar_t value[255];
+    DWORD BufferSize = 8192;
+    wstring regFilePath = L"";
+    if (ERROR_SUCCESS != RegGetValueW(HKEY_CLASSES_ROOT, L"SystemFileAssociations\\.snakemap\\Shell\\Открыть редактором карт\\Command", L"", RRF_RT_ANY, NULL, (PVOID)&value, &BufferSize)) {
+
+
+        
+            int quoteCount = 0;
+            for (int i = 0; value[i] != '\0'; i++) {
+                if (value[i] != L'\"') regFilePath.push_back(value[i]);
+                else {
+                    quoteCount++;
+                }
+                if (quoteCount == 2) {
+                    regFilePath.push_back('\0');
+                    break;
+                };
+            }
+    }
+    if (!fileExists(regFilePath)) {
+        RegSet(HKEY_CLASSES_ROOT, L"SystemFileAssociations\\.snakemap\\Shell\\Открыть редактором карт\\Command", pszValue);
+
+        SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+    }
     
-
-    RegSet(HKEY_CLASSES_ROOT, L"SystemFileAssociations\\.snakemap\\Shell\\Открыть редактором карт\\Command", L"\"C:\\Users\\paytv\\source\\repos\\STEPGame\\Debug\\SnakeMapEditor.exe\" \"%1\"");
-
-    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
-    return 0;
 }
 
 
