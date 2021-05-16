@@ -8,7 +8,7 @@
 #include <mmsystem.h>
 #include<stdlib.h>
 #include <filesystem>
-
+#include <thread>
 
 
 
@@ -48,6 +48,18 @@ void playPortalSound() {
 	_dir.append(L"\\Resources\\portal.wav");
 	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
 }
+void playMusic() {
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\menuMusic.wav");
+	PlaySound(_dir.c_str(), NULL,SND_SYNC | SND_FILENAME);
+}
+// ASYNC-версия
+void _playMusic() {
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\menuMusic.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
+}
+
 
 struct Map {
 	// Ширина да высота карты

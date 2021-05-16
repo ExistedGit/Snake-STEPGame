@@ -27,6 +27,18 @@ void gotoxy(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+// Тоже улучшенный метод
+void _gotoxy(int x, int y, int sizeLen = 0, int sizeHeight = 100) //При наличии размера строки выполняется форматирование по центру
+{
+	if (sizeLen)
+		x = (x + sizeHeight - sizeLen) / 2;
+
+	COORD coord;
+	coord.X = x;
+	coord.Y = y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
 class fostream;
 
 void operator<<(fostream& fos, string text);

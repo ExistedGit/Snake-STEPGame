@@ -7,6 +7,7 @@
 #include "../SnakeMapRedactor/MapEditor.h";
 #include "Account.h"
 
+
 using namespace std;
 
 
@@ -44,8 +45,7 @@ void showTable(vector<Account> acc) {
 int main() {
 	setlocale(LC_ALL, "");
 
-	wstring defaultMapDir = dir;
-	defaultMapDir.append(L"\\Maps\\Default.snakemap");
+	
 	
 	
 	SetConsoleCP(1251);
@@ -65,18 +65,42 @@ int main() {
 (_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
+
+	wstring defaultMapDir = dir;
+	defaultMapDir.append(L"\\Maps\\Default.snakemap");
 	wstring mapFile = defaultMapDir;
 	CenteredMenu mainMenu;
 	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
 
+	wstring musicFile = dir;
+	musicFile.append(L"\\Resources\\menuMusic.wav");
+
 	int snakeLengthModifier =0 ;
 
+	bool firstLogoPrint = true;
 	
-	
+	thread musicThread;
 
 	while (true) {
+		if (firstLogoPrint) {
+			_printRaw(logo, 80, 2 + 10, LightGreen, 0, 0, 5);
+			firstLogoPrint = false;
+
+			
+
+			gotoxy(80 + 10, 25);
+
+			cout << "Нажмите любую кнопку, чтобы продолжить...";
+
+			system("pause>nul");
+			system("cls");
+		}
 		printRaw(logo, 80, 2 + 10, LightGreen);
 		
+		musicThread = thread([]() {
+			playMusic();
+			});
+
 		vector<Account> acc = loadAccounts();
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
 
@@ -156,6 +180,7 @@ int main() {
 			break;
 		}
 		case 4:
+			musicThread.detach();
 			exit(0);
 			break;
 		}
