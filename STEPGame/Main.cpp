@@ -4,14 +4,11 @@
 #include <iomanip>
 #include "Map.h"
 #include "Menu.h"
-#include "../SnakeMapRedactor/MapEditor.h"
+#include "../SnakeMapRedactor/MapEditor.h";
 #include "Account.h"
-#include <filesystem>
-
-#include "FormatText.h"
 
 using namespace std;
-using std::filesystem::current_path;
+
 
 void easterEggCheck(string name) {
 	if (name == "EXISTED") {
@@ -47,6 +44,9 @@ void showTable(vector<Account> acc) {
 int main() {
 	setlocale(LC_ALL, "");
 
+	wstring defaultMapDir = dir;
+	defaultMapDir.append(L"\\Maps\\Default.snakemap");
+	
 	
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
@@ -65,7 +65,7 @@ int main() {
 (_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
-	wstring mapFile = L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap";
+	wstring mapFile = defaultMapDir;
 	CenteredMenu mainMenu;
 	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
 
@@ -115,7 +115,7 @@ int main() {
 			cout << "Импортировать карту?";
 			int loadMap = mainMenu.select_vertical({ "Да", "Нет" }, 98, 21) + 1;
 			if (loadMap == 1) mapFile = openfilename(L"SnakeMap\0*.snakemap\0");
-			else mapFile = DEFAULT_MAP_FILE;
+			else mapFile = defaultMapDir;
 			system("cls");
 			
 			mainMap.Draw(mapFile);

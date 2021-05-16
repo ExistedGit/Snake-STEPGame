@@ -2,20 +2,18 @@
 
 #pragma comment(lib, "winmm.lib")
 
+#include "../SnakeMapRedactor/MapEditor.h"
 #include "Snake.h"
 #include "Account.h"
 #include <mmsystem.h>
 #include<stdlib.h>
+#include <filesystem>
 
-#define DEFAULT_MAP_FILE L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Maps\\Default.snakemap"
 
 
-wstring ExePath() {
-	TCHAR buffer[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
-	return std::wstring(buffer).substr(0, pos);
-}
+
+
+
 
 
 enum Difficulties {
@@ -25,12 +23,30 @@ enum Difficulties {
 };
 
 using namespace std;
+using std::filesystem::current_path;
+const wstring dir = current_path().wstring();
+
+
 
 
 
 void playBiteSound() {
-	PlaySound(L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Resources\\bite.wav", NULL, SND_FILENAME | SND_ASYNC);
-	//mciSendString(TEXT("./Resources/bite.wav"), NULL, 0, NULL);
+	
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\bite.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
+}
+
+void playGameOverSound() {
+
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\gameOver.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
+}
+void playPortalSound() {
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\portal.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
 }
 
 struct Map {
@@ -42,7 +58,8 @@ struct Map {
 	// Векторы векторов с координатами всякого. Да, я мог использовать класс COORD или соорудить свой, но различие минимально
 	vector<vector<int>> food; 
 	vector<vector<int>> walls;
-	
+	vector<Portal> portals;
+
 	Account acc;
 
 	bool isRunning = false;	
@@ -55,7 +72,10 @@ struct Map {
 		s = Snake(width / 2, height / 2, 2);
 		food = {};
 		walls = {};
+		portals = {};
+		acc = Account();
 		score = 0;
+
 
 		g_EE_EXISTED = false;
 		g_EE_RainbowDash = false;
@@ -67,8 +87,6 @@ struct Map {
 		if (map == L"") {
 			wchar_t buff[MAX_PATH];
 			GetModuleFileName(NULL, buff, MAX_PATH);
-
-			
 		}
 		
 		ifstream fin(map);
@@ -82,7 +100,10 @@ struct Map {
 				else if (buff[i] == '+') {
 					snakePos = { i,l };
 				}
-				
+				else if(hexIntMap.count(buff[i])){
+
+					portals.push_back({ i, l, hexIntMap[buff[i]] });
+				}
 				
 				width = strlen(buff);
 			}
@@ -94,6 +115,14 @@ struct Map {
 			gotoxy(walls[i][0], walls[i][1]);
 			cout << "#";
 		}
+
+		for (int i = 0; i < portals.size(); i++) {
+			gotoxy(portals[i].x, portals[i].y);
+			SetColor(portals[i].color);
+			cout << '0';
+			SetColor();
+		}
+
 		if (snakePos.empty()) {
 			snakePos = {width/2, height/2};
 		}
@@ -105,12 +134,48 @@ struct Map {
 	void snakeCheck() { // Проверяет, не столкнулась ли змейка с препятствием
 		for (int i = 1; i < s.bodyMatrix.size(); i++) {
 			if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
-
-			
 		}
 
 		for (int j = 0; j < walls.size(); j++) {
 			if (s.bodyMatrix[0][0] == walls[j][0] && s.bodyMatrix[0][1] == walls[j][1]) isRunning = false;
+		}
+
+		for (int i = 0; i < portals.size(); i++) { // Обрабатываем портальные взаимодействия
+			
+			if (s.bodyMatrix[0][0] == portals[i].x && s.bodyMatrix[0][1] == portals[i].y) {
+				Portal travelPortal = portals[i];
+				for (int j = 0; j < portals.size(); j++) {
+					if(j != i) if (portals[j].color == portals[i].color) travelPortal = portals[j];
+				}
+
+				switch (s.direction) {
+				case UP:
+					s.bodyMatrix[0][0] = travelPortal.x;
+					s.bodyMatrix[0][1] = travelPortal.y - 1;
+					break;
+				case RIGHT:
+					s.bodyMatrix[0][0] = travelPortal.x + 1;
+					s.bodyMatrix[0][1] = travelPortal.y;
+					break;
+				case DOWN:
+					s.bodyMatrix[0][0] = travelPortal.x;
+					s.bodyMatrix[0][1] = travelPortal.y + 1;
+					break;
+				case LEFT:
+					s.bodyMatrix[0][0] = travelPortal.x - 1;
+					s.bodyMatrix[0][1] = travelPortal.y;
+					break;
+				}
+				
+				playPortalSound();
+
+				for (int i = 0; i < portals.size(); i++) {
+					gotoxy(portals[i].x, portals[i].y);
+					SetColor(portals[i].color);
+					cout << '0';
+					SetColor();
+				}
+			}
 		}
 	}
 
@@ -188,7 +253,14 @@ struct Map {
 		int posY = rand()%(height-3)+2;
 		
 		for (int i = 0; i < walls.size(); i++) {
-			if (walls[i][0] == posX && walls[i][1] == posY) {
+			if ((walls[i][0] == posX && walls[i][1] == posY)) {
+				generateFood();
+				return;
+			}
+		}
+
+		for (int i = 0; i < portals.size(); i++) {
+			if (portals[i].x == posX && portals[i].y == posY) {
 				generateFood();
 				return;
 			}
@@ -239,7 +311,7 @@ struct Map {
 		gotoxy(width / 2 - 4, height / 2);
 		SetColor(Red);
 		cout << "GAME OVER";
-		PlaySound(L"C:\\Users\\paytv\\source\\repos\\STEPGame\\STEPGame\\Resources\\gameOver.wav", NULL, SND_ASYNC | SND_FILENAME);
+		playGameOverSound();
 		SetColor();
 		gotoxy(0, height+5);
 		system("pause>nul");

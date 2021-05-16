@@ -148,12 +148,18 @@ void SetUpRegistry() { // Записывает редактор в регист�
     
 }
 
+struct Portal {
+    int x, y;
+    int color;
+};
 
 struct MapEditor {
     int width = 40, height = 40;
     vector<vector<char>> matrix;
+    vector<Portal> portals; // Порталы должны работать не так. Но я уже не хочу переделывать и так рабочую архитектуру
 
-    
+    int portalColor = 1;
+
     void generateMap() {
         matrix = {};
         for (int i = 0; i < height; i++) {
@@ -193,11 +199,15 @@ struct MapEditor {
         ifstream fin(fileName);
         char buff[320];
         int i = 0;
-        while (fin.getline(buff, 320)) {
+        while (fin.getline(buff, 320)) { // Тоже парсер файла
             width = strlen(buff);
             matrix.push_back({});
             for (int j = 0; buff[j] != '\0'; j++) {
-                matrix[i].push_back(buff[j]);
+                if (hexIntMap.count(buff[j])) {
+                    portals.push_back({ j, i, hexIntMap[buff[j]] });
+                    matrix[i].push_back(SPACE);
+                }
+                else matrix[i].push_back(buff[j]);
             }
             i++;
         }
@@ -212,11 +222,16 @@ struct MapEditor {
             ifstream fin(fileName);
             char buff[320];
             int i = 0;
-            while (fin.getline(buff, 320)) {
+            while (fin.getline(buff, 320)) { // Парсер файла
                 width = strlen(buff);
                 matrix.push_back({});
                 for (int j = 0; buff[j] != '\0'; j++) {
-                    matrix[i].push_back(buff[j]);
+                    
+                    if (hexIntMap.count(buff[j])) {
+                        portals.push_back({ j, i, hexIntMap[buff[j]] });
+                        matrix[i].push_back(SPACE);
+                    } else matrix[i].push_back(buff[j]);
+                    
                 }
                 i++;
             }
@@ -234,7 +249,17 @@ struct MapEditor {
                 ofstream fout(fileName);
                 for (int i = 0; i < height; i++) {
                     for (int j = 0; j < width; j++) {
-                        fout << matrix[i][j];
+                        
+                        bool isPortal = false;
+                        for (int k = 0; k < portals.size(); k++) {
+                            if (portals[k].x == j && portals[k].y == i) {
+                                fout << intHexMap[portals[k].color];
+                                isPortal = true;
+                            }
+                        }
+
+                        if(!isPortal) fout << matrix[i][j];
+                        
                     }
                     fout << endl;
                 }
@@ -255,6 +280,7 @@ struct MapEditor {
         
     }
 
+    
     void displayMode(int drawMode) {
         
         SetColor();
@@ -280,6 +306,14 @@ struct MapEditor {
                 SetColor(0, 15);
             }
             cout << tileNames[i];
+            if (i == 3) {
+                SetColor();
+                cout << "(Цвет: ";
+                SetColor(portalColor, portalColor);
+                cout << " ";
+                SetColor();
+                cout << ")";
+            }
             SetColor();
         }
     }
@@ -311,7 +345,7 @@ struct MapEditor {
 
 
         bool active = true;
-        int posX=0, posY=0;
+        int posX = 0, posY = 0;
         char c;
         vector<int> oldPos = { 0, 1 };
 
@@ -324,12 +358,23 @@ struct MapEditor {
 
             gotoxy(oldPos[0], oldPos[1]);
             SetColor(15, 0);
-            cout << matrix[oldPos[1]][oldPos[0]];
-            SetColor();
             
+            cout << matrix[oldPos[1]][oldPos[0]];
+
+            SetColor();
             gotoxy(posX, posY);
             SetColor(0, 15);
             cout << matrix[posY][posX];
+
+            for (int i = 0; i < portals.size(); i++) {
+                gotoxy(portals[i].x, portals[i].y);
+                SetColor(portals[i].color, (posX == portals[i].x && posY == portals[i].y ? 15 : 0));
+                
+                cout << '0';
+            }
+
+            
+            
 
 
 
@@ -358,7 +403,11 @@ struct MapEditor {
                 drawTile = SPAWN;
                 break;
             case 0x34:
-                drawTile = PORTAL;
+                if (drawTile == PORTAL) {
+                    portalColor++;
+                    portalColor %= 16;
+                    if (portalColor == 0)portalColor++;
+                } else drawTile = PORTAL;
                 break;
             case 'z': case 'Z':
                 drawMode = MOVE;
@@ -371,6 +420,87 @@ struct MapEditor {
                 break;
             case VK_SPACE:
                 if (drawMode == POINTDRAW) {
+                    if (drawTile == PORTAL) {
+                        int sameColorPortals = 0;
+                        for (int i = 0; i<portals.size(); i++) { // Смотрим массив порталов
+                            if (portals[i].color == portalColor) { // Если цвет портала i равен текущему,
+                                if(sameColorPortals < 1)sameColorPortals++; // мы проверяем, был ли он больше, чем вторым
+                                else { // Если да, то удаляем последний из порталов этого цвета 
+                                    gotoxy(portals[i].x, portals[i].y);
+                                    SetColor(15, 0);
+                                    cout << SPACE;
+                                    portals.erase(portals.begin() + i);
+                                }
+                            }
+                        }
+
+                        for (int i = 0; i < portals.size(); i++) { // удаляем порталы, которые стоят на месте курсора
+                            if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
+                        }
+                        
+                        portals.push_back({ posX, posY, portalColor });
+                        gotoxy(posX, posY);
+                        SetColor(portalColor);
+                        cout << '0';
+                        
+                    }
+                    else {
+                        if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
+                        else {
+                            for (int i = 0; i < height; i++) {
+                                for (int j = 0; j < width; j++) {
+                                    if (matrix[i][j] == SPAWN) {
+                                        SetColor();
+                                        gotoxy(j, i);
+                                        matrix[i][j] = SPACE;
+                                        cout << SPACE;
+                                        break;
+                                    }
+                                }
+                            }
+                            matrix[posY][posX] = drawTile;
+                        }
+                        for (int i = 0; i < portals.size(); i++) {
+                            if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
+                        }
+                    }
+                    
+                }
+                break;
+            case 's': case 'S':
+                save();
+                break;
+            
+            case VK_ESCAPE:
+                active = false;
+                break;
+            }
+            
+            if (drawMode == DRAW) {
+                if (drawTile == PORTAL) {
+                    int sameColorPortals = 0;
+                    for (int i = 0; i < portals.size(); i++) { // Смотрим массив порталов
+                        if (portals[i].color == portalColor) { // Если цвет портала i равен текущему,
+                            if (sameColorPortals < 1)sameColorPortals++; // мы проверяем, был ли он больше, чем вторым
+                            else { // Если да, то удаляем последний из порталов этого цвета 
+                                gotoxy(portals[i].x, portals[i].y);
+                                SetColor(15, 0);
+                                cout << SPACE;
+                                portals.erase(portals.begin() + i);
+                            }
+                        }
+                    }
+                    for (int i = 0; i < portals.size(); i++) { // удаляем порталы, которые стоят на месте курсора
+                        if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
+                    }
+
+
+                    portals.push_back({ posX, posY, portalColor });
+                    gotoxy(posX, posY);
+                    SetColor(portalColor);
+                    cout << '0';
+                }
+                else {
                     if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
                     else {
                         for (int i = 0; i < height; i++) {
@@ -386,36 +516,11 @@ struct MapEditor {
                         }
                         matrix[posY][posX] = drawTile;
                     }
-                }
-                break;
-            case 's': case 'S':
-                save();
-                break;
-            
-            case VK_ESCAPE:
-                active = false;
-                break;
-            
-
-                
-            }
-            
-            if (drawMode == DRAW) {
-                if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
-                else {
-                    for (int i = 0; i < height; i++) {
-                        for (int j = 0; j < width; j++) {
-                            if (matrix[i][j] == SPAWN) {
-                                SetColor();
-                                gotoxy(j, i);
-                                matrix[i][j] = SPACE;
-                                cout << SPACE;
-                                break;
-                            }
-                        }
+                    for (int i = 0; i < portals.size(); i++) {
+                        if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
                     }
-                    matrix[posY][posX] = drawTile;
                 }
+                
             }
             
             
