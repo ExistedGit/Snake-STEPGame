@@ -79,7 +79,7 @@ int main() {
 
 	bool firstLogoPrint = true;
 	
-	thread musicThread;
+	//thread musicThread;
 
 	while (true) {
 		if (firstLogoPrint) {
@@ -96,10 +96,10 @@ int main() {
 			system("cls");
 		}
 		printRaw(logo, 80, 2 + 10, LightGreen);
-		
+		/*
 		musicThread = thread([]() {
 			playMusic();
-			});
+			});*/
 
 		vector<Account> acc = loadAccounts();
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
@@ -138,7 +138,11 @@ int main() {
 			gotoxy(90, 20);
 			cout << "Импортировать карту?";
 			int loadMap = mainMenu.select_vertical({ "Да", "Нет" }, 98, 21) + 1;
-			if (loadMap == 1) mapFile = openfilename(L"SnakeMap\0*.snakemap\0");
+			if (loadMap == 1)
+			{
+				mapFile = openfilename(L"SnakeMap\0*.snakemap\0");
+				if (mapFile == L"") mapFile = defaultMapDir;
+			}
 			else mapFile = defaultMapDir;
 			system("cls");
 			
@@ -184,7 +188,9 @@ int main() {
 			exit(0);
 			break;
 		}
+		musicThread.detach();
 		system("cls");
+
 	}
 	
 }
