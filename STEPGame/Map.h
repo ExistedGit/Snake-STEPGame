@@ -197,7 +197,7 @@ struct Map {
 			if (s.bodyMatrix[0][0] == food[i][0] && s.bodyMatrix[0][1] == food[i][1]) {
 				food.pop_back();
 				s.growTail();
-				score += 10;
+				score += 10 * (4-difficulty);
 				displayLength();
 				displayScore();
 
@@ -274,6 +274,13 @@ struct Map {
 
 		for (int i = 0; i < portals.size(); i++) {
 			if (portals[i].x == posX && portals[i].y == posY) {
+				generateFood();
+				return;
+			}
+		}
+
+		for (int i = 0; i < s.bodyMatrix.size(); i++) {
+			if (s.bodyMatrix[i][0] == posX && s.bodyMatrix[i][1] == posY) {
 				generateFood();
 				return;
 			}
