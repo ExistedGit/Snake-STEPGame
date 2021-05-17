@@ -4,11 +4,62 @@
 #include <iomanip>
 #include "Map.h"
 #include "Menu.h"
-#include "../SnakeMapRedactor/MapEditor.h";
+//#include "../SnakeMapRedactor/MapEditor.h"
 #include "Account.h"
-
+#include <mmdeviceapi.h>
+#include <endpointvolume.h>
 
 using namespace std;
+
+//bool ChangeVolume(double nVolume, bool bScalar)
+//{
+//
+//	HRESULT hr = NULL;
+//	bool decibels = false;
+//	bool scalar = false;
+//	double newVolume = nVolume;
+//
+//	CoInitialize(NULL);
+//	IMMDeviceEnumerator* deviceEnumerator = NULL;
+//	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER,
+//		__uuidof(IMMDeviceEnumerator), (LPVOID*)&deviceEnumerator);
+//	IMMDevice* defaultDevice = NULL;
+//
+//	hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
+//	deviceEnumerator->Release();
+//	deviceEnumerator = NULL;
+//
+//	IAudioEndpointVolume* endpointVolume = NULL;
+//	hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume),
+//		CLSCTX_INPROC_SERVER, NULL, (LPVOID*)&endpointVolume);
+//	defaultDevice->Release();
+//	defaultDevice = NULL;
+//
+//	// -------------------------
+//	float currentVolume = 0;
+//	endpointVolume->GetMasterVolumeLevel(&currentVolume);
+//	//printf("Current volume in dB is: %f\n", currentVolume);
+//
+//	hr = endpointVolume->GetMasterVolumeLevelScalar(&currentVolume);
+//	//CString strCur=L"";
+//	//strCur.Format(L"%f",currentVolume);
+//	//AfxMessageBox(strCur);
+//
+//	// printf("Current volume as a scalar is: %f\n", currentVolume);
+//	if (bScalar == false)
+//	{
+//		hr = endpointVolume->SetMasterVolumeLevel((float)newVolume, NULL);
+//	}
+//	else if (bScalar == true)
+//	{
+//		hr = endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
+//	}
+//	endpointVolume->Release();
+//
+//	CoUninitialize();
+//
+//	return FALSE;
+//}
 
 
 void easterEggCheck(string name) {
@@ -42,6 +93,10 @@ void showTable(vector<Account> acc) {
 	system("pause>nul");
 }
 
+void mciSend(wstring ws) {
+	mciSendStringW(ws.c_str(), NULL, 0, 0);
+}
+
 int main() {
 	setlocale(LC_ALL, "");
 
@@ -56,13 +111,19 @@ int main() {
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 	SetConsoleTitleW(TEXT("Игра \"Змейка\""));
 	string logo = R"Main(
-  ________   _____  ___         __       __   ___    _______  
- /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
-(:   \___/  |.\\   \    |     /    \    (: |/   /  (: ______) 
- \___  \    |: \.   \\  |    /' /\  \   |    __/    \/    |   
-  __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
- /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
-(_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
+%8  ________   _____  ___         __       __   ___    _______  
+%9 /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
+%A2(:   \___/  |.\\   \    |     /    \    (: |/   /  (: ______) 
+%B \___  \    |: \.   \\  |    /' /\  \   |    __/    \/    |   
+%C  __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
+%D /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
+%F2(_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
+	
+	printRawF(logo, 80, 12);
+
+	cout << endl;
+	system("pause");
+	
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
 
@@ -70,7 +131,7 @@ int main() {
 	defaultMapDir.append(L"\\Maps\\Default.snakemap");
 	wstring mapFile = defaultMapDir;
 	CenteredMenu mainMenu;
-	vector<string> buttons = { "Новая игра", "Таблица рекордов", "Настройки", "Выход" };
+	vector<string> buttons = { "Новая игра", "Обучение",  "Таблица рекордов", "Настройки", "Выход" };
 
 	wstring musicFile = dir;
 	musicFile.append(L"\\Resources\\menuMusic.wav");
@@ -80,6 +141,7 @@ int main() {
 	bool firstLogoPrint = true;
 	
 	//thread musicThread;
+	mciSendStringW(L"open \"Resources/menuMusic.mp3\" type mpegvideo alias music", NULL, 0, 0);
 
 	while (true) {
 		if (firstLogoPrint) {
@@ -91,8 +153,9 @@ int main() {
 			gotoxy(80 + 10, 25);
 
 			cout << "Нажмите любую кнопку, чтобы продолжить...";
-
+			mciSendStringW(L"play music repeat", NULL, 0, 0);
 			system("pause>nul");
+			
 			system("cls");
 		}
 		printRaw(logo, 80, 2 + 10, LightGreen);
@@ -100,12 +163,17 @@ int main() {
 		musicThread = thread([]() {
 			playMusic();
 			});*/
+		//ChangeVolume(1, true);
+		
+		if (!firstLogoPrint)mciSendStringW(L"play music repeat", NULL, 0, 0);
+		else firstLogoPrint = false;
 
 		vector<Account> acc = loadAccounts();
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
 
+		//ChangeVolume(0, true);
 		
-
+		
 		system("cls");
 		switch (chooseMain) {
 		case 1: {
@@ -146,6 +214,8 @@ int main() {
 			else mapFile = defaultMapDir;
 			system("cls");
 			
+			mciSendStringW(L"stop music", NULL, 0, 0);
+
 			mainMap.Draw(mapFile);
 			mainMap.Update();
 
@@ -155,9 +225,12 @@ int main() {
 			break;
 		}
 		case 2:
+
+			break;
+		case 3:
 			showTable(acc);
 			break;
-		case 3: {
+		case 4: {
 			vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
 			vector<vector<string>> right = { {"Hard", "Middle", "Easy"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 
@@ -183,7 +256,7 @@ int main() {
 
 			break;
 		}
-		case 4:
+		case 5:
 			//musicThread.detach();
 			exit(0);
 			break;
