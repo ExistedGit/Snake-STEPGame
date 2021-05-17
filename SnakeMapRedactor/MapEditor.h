@@ -514,5 +514,6 @@ struct MapEditor {
             
             
         }
+        system("cls");
     }
 };

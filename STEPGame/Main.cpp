@@ -111,18 +111,14 @@ int main() {
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 	SetConsoleTitleW(TEXT("Игра \"Змейка\""));
 	string logo = R"Main(
-%8  ________   _____  ___         __       __   ___    _______  
-%9 /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
-%A2(:   \___/  |.\\   \    |     /    \    (: |/   /  (: ______) 
-%B \___  \    |: \.   \\  |    /' /\  \   |    __/    \/    |   
-%C  __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
-%D /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
-%F2(_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
-	
-	printRawF(logo, 80, 12);
+  ________   _____  ___         __       __   ___    _______  
+ /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
+(:   \___/  |.\\   \    |     /    \    (: |/   /  (: ______) 
+ \___  \    |: \.   \\  |    /' /\  \   |    __/    \/    |   
+  __/  \\   |.  \    \. |   //  __'  \  (// _  \    // ___)_  
+ /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
+(_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 
-	cout << endl;
-	system("pause");
 	
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
@@ -138,22 +134,24 @@ int main() {
 
 	int snakeLengthModifier =0 ;
 
-	bool firstLogoPrint = true;
+	bool firstLogoPrint = true,
+		musicPaused = true;
 	
 	//thread musicThread;
+	
 	mciSendStringW(L"open \"Resources/menuMusic.mp3\" type mpegvideo alias music", NULL, 0, 0);
-
 	while (true) {
+		
 		if (firstLogoPrint) {
 			_printRaw(logo, 80, 2 + 10, LightGreen, 0, 0, 5);
-			firstLogoPrint = false;
 
 			
 
 			gotoxy(80 + 10, 25);
 
 			cout << "Нажмите любую кнопку, чтобы продолжить...";
-			mciSendStringW(L"play music repeat", NULL, 0, 0);
+			mciSendStringW(L"play music from 0 repeat", NULL, 0, 0);
+			musicPaused = false;
 			system("pause>nul");
 			
 			system("cls");
@@ -165,7 +163,10 @@ int main() {
 			});*/
 		//ChangeVolume(1, true);
 		
-		if (!firstLogoPrint)mciSendStringW(L"play music repeat", NULL, 0, 0);
+		if (!firstLogoPrint && musicPaused) {
+			mciSendStringW(L"play music from 0 repeat", NULL, 0, 0);
+			musicPaused = false;
+		}
 		else firstLogoPrint = false;
 
 		vector<Account> acc = loadAccounts();
@@ -214,7 +215,8 @@ int main() {
 			else mapFile = defaultMapDir;
 			system("cls");
 			
-			mciSendStringW(L"stop music", NULL, 0, 0);
+			mciSendStringW(L"stop music", NULL, 0, 0); // музыка останавливается перед началом змейки
+			musicPaused = true; 
 
 			mainMap.Draw(mapFile);
 			mainMap.Update();
