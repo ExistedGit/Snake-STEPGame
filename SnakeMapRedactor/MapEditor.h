@@ -286,14 +286,14 @@ struct MapEditor {
                     for (int j = 0; j < width; j++) {
                         
                         bool isPortal = false;
-                        for (int k = 0; k < portals.size(); k++) {
+                        for (int k = 0; k < portals.size(); k++) { // Проверяет, является ли сохраняемая плитка порталом
                             if (portals[k].x == j && portals[k].y == i) {
                                 fout << intHexMap[portals[k].color];
                                 isPortal = true;
                             }
                         }
 
-                        if(!isPortal) fout << matrix[i][j];
+                        if(!isPortal) fout << matrix[i][j]; // И не выводит матричную плитку, если так
                         
                     }
                     fout << endl;
@@ -481,7 +481,7 @@ struct MapEditor {
                     }
                     else {
                         if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
-                        else {
+                        else { // Тут просто удаляется старая точка спавна, а потом как обычно ставится новая
                             for (int i = 0; i < height; i++) {
                                 for (int j = 0; j < width; j++) {
                                     if (matrix[i][j] == SPAWN) {
@@ -495,7 +495,7 @@ struct MapEditor {
                             }
                             matrix[posY][posX] = drawTile;
                         }
-                        for (int i = 0; i < portals.size(); i++) {
+                        for (int i = 0; i < portals.size(); i++) {// удаляем порталы, которые стоят на месте курсора
                             if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
                         }
                     }
@@ -551,7 +551,7 @@ struct MapEditor {
                         }
                         matrix[posY][posX] = drawTile;
                     }
-                    for (int i = 0; i < portals.size(); i++) {
+                    for (int i = 0; i < portals.size(); i++) { // удаляем порталы, которые стоят на месте курсора
                         if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
                     }
                 }

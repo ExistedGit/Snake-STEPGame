@@ -1,13 +1,15 @@
 ﻿#pragma once
 
-#pragma comment(lib, "winmm.lib")
+
 
 #include "../SnakeMapRedactor/MapEditor.h"
 #include "Snake.h"
 #include "Account.h"
+
+#pragma comment(lib, "winmm.lib")
 #include <mmsystem.h>
 #include<stdlib.h>
-#include <filesystem>
+
 //#include <thread>
 
 
@@ -23,8 +25,7 @@ enum Difficulties {
 };
 
 using namespace std;
-using std::filesystem::current_path;
-const wstring dir = current_path().wstring();
+
 
 
 

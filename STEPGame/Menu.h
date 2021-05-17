@@ -3,6 +3,22 @@
 #include <conio.h>
 #include <WinUser.h> // нужны же мне в конце концов удобные литералы с номерами кнопок в _гетче()
 
+#pragma comment(lib, "winmm.lib")
+#include <mmsystem.h>
+
+void playButtonClickSound() {
+
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\menuButtonClick.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
+}
+
+void playButtonSwitchSound() {
+
+	wstring _dir = dir;
+	_dir.append(L"\\Resources\\menuButtonSwitch.wav");
+	PlaySound(_dir.c_str(), NULL, SND_ASYNC | SND_FILENAME);
+}
 
 int findMaxString(vector<string> a) { // Возвращает длину самой длинной строчки в массиве
 	int max = a[0].length();
@@ -126,6 +142,7 @@ struct CenteredMenu : Menu {
 				else {
 					pos = menu.size() - 1;
 				}
+				playButtonSwitchSound();
 				break;
 			case 80:
 				if (pos < menu.size() - 1)
@@ -133,10 +150,13 @@ struct CenteredMenu : Menu {
 				else {
 					pos = 0;
 				}
+				playButtonSwitchSound();
 				break;
 			case 13:
+				playButtonClickSound();
 				break;
 			default:
+				
 				break;
 			}
 		} while (c != 13);

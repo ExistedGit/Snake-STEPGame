@@ -6,9 +6,13 @@
 #include <map>
 #include <conio.h>
 #include <fstream>
+#include <filesystem>
 #include "FormatText.h"
+
 using namespace std;
 
+using std::filesystem::current_path;
+const wstring dir = current_path().wstring();
 
 // Les константы
 #define KEY_UP 72
