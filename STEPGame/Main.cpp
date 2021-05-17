@@ -157,11 +157,7 @@ int main() {
 			system("cls");
 		}
 		printRaw(logo, 80, 2 + 10, LightGreen);
-		/*
-		musicThread = thread([]() {
-			playMusic();
-			});*/
-		//ChangeVolume(1, true);
+		
 		
 		if (!firstLogoPrint && musicPaused) {
 			mciSendStringW(L"play music from 0 repeat", NULL, 0, 0);
@@ -172,7 +168,7 @@ int main() {
 		vector<Account> acc = loadAccounts();
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
 
-		//ChangeVolume(0, true);
+		
 		
 		
 		system("cls");
@@ -259,11 +255,11 @@ int main() {
 			break;
 		}
 		case 5:
-			//musicThread.detach();
+			
 			exit(0);
 			break;
 		}
-		//musicThread.detach();
+		
 		system("cls");
 
 	}
