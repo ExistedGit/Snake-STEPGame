@@ -146,8 +146,12 @@ struct MapEditor {
     int width = 40, height = 40;
     vector<vector<char>> matrix;
     vector<Portal> portals; // Порталы должны работать не так. Но я уже не хочу переделывать и так рабочую архитектуру
-
+    
     int portalColor = 1;
+
+    void reset() {
+        portals = {};
+    }
 
     void generateMap() {
         matrix = {};

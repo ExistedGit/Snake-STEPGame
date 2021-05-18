@@ -147,6 +147,14 @@ struct Map {
 	void snakeCheck() { // Проверяет, не столкнулась ли змейка с препятствием
 		for (int i = 1; i < s.bodyMatrix.size(); i++) {
 			if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
+			
+			for (int j = 0; j < walls.size(); j++) {
+				if (s.bodyMatrix[i][0] == walls[j][0] && s.bodyMatrix[i][1] == walls[j][1]) {
+					gotoxy(walls[j][0], walls[j][0]);
+					cout << WALL;
+				}
+			}
+			
 		}
 
 		for (int j = 0; j < walls.size(); j++) {
@@ -182,16 +190,20 @@ struct Map {
 				
 				playPortalSound();
 
-				for (int i = 0; i < portals.size(); i++) {
-					gotoxy(portals[i].x, portals[i].y);
-					SetColor(portals[i].color);
-					cout << '0';
-					SetColor();
-				}
+				//drawPortals();
 			}
 		}
 	}
-
+	void drawPortals() {
+		for (int j = 0; j < portals.size(); j++) {
+			//if (s.bodyMatrix[i][0] == portals[j].x && s.bodyMatrix[i][1] == portals[j].y) {
+			gotoxy(portals[j].x, portals[j].y);
+			SetColor(portals[j].color);
+			cout << PORTAL;
+			SetColor();
+			//}
+		}
+	}
 	void foodCheck() { // Проверяет, была ли съедена еда
 		for (int i = 0; i < food.size(); i++) {
 			if (s.bodyMatrix[0][0] == food[i][0] && s.bodyMatrix[0][1] == food[i][1]) {
@@ -300,7 +312,7 @@ struct Map {
 		while (isRunning) {
 			ShowConsoleCursor(false);
 			
-			
+			drawPortals();
 			
 			if (_kbhit()) {
 				int c; // Переменная, в которую засовывается направление

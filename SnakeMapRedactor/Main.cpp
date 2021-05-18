@@ -57,12 +57,17 @@ int main(int argc, char** argv) {
         system("cls");
         switch (choose) {
         case 1:
+
             mpedit.resizeMenu();
+            mpedit.reset();
             system("cls");
             mpedit.start();
             break;
         case 2:
-            if(mpedit.load()) mpedit.start();
+            if (mpedit.load()) {
+                mpedit.start();
+                mpedit.reset();
+            }
             break;
         case 3:
             exit(0);

@@ -141,12 +141,50 @@ struct Snake {
 				SetColor();
 			}
 			else {
-				if (g_EE_EXISTED) SetColor(rand() % 15 + 1);
+				if (g_EE_EXISTED) SetColor(rand() % 15 + 1); // Пасхалочки
 				else if (g_EE_RainbowDash) {
 					int rainbow[] = { Red, Brown, Yellow, LightGreen, Cyan, Blue, Magenta };
 					SetColor(rainbow[(i-1)%7], 0);
-				} else SetColor(LightGreen);
-				cout << "~";
+				} else 
+					SetColor(LightGreen);
+				
+				if (bodyMatrix[i + 1][1] > bodyMatrix[i][1]) {
+					if (bodyMatrix[i - 1][0] > bodyMatrix[i][0]) {
+						cout << "/";
+					}
+					else if(bodyMatrix[i - 1][0] < bodyMatrix[i][0]){
+						cout << "\\";
+					}
+					else cout << ":";
+				}
+				else if(bodyMatrix[i + 1][1] < bodyMatrix[i][1]) {
+					if (bodyMatrix[i - 1][0] > bodyMatrix[i][0]) {
+						cout << "\\";
+					}
+					else if (bodyMatrix[i - 1][0] < bodyMatrix[i][0]) {
+						cout << "/";
+					}
+					else cout << ":";
+				} else if (bodyMatrix[i - 1][1] > bodyMatrix[i][1]) {
+						if (bodyMatrix[i + 1][0] > bodyMatrix[i][0]) {
+							cout << "/";
+						}
+						else if (bodyMatrix[i + 1][0] < bodyMatrix[i][0]) {
+							cout << "\\";
+						}
+						else cout << ":";
+				} else if (bodyMatrix[i - 1][1] < bodyMatrix[i][1]) {
+					if (bodyMatrix[i + 1][0] > bodyMatrix[i][0]) {
+						cout << "\\";
+					}
+					else if (bodyMatrix[i + 1][0] < bodyMatrix[i][0]) {
+						cout << "/";
+					}
+					else cout << ":";
+				} else {
+					cout << "~";
+				}
+
 				SetColor();
 			}
 		}
