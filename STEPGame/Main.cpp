@@ -6,6 +6,7 @@
 #include "Menu.h"
 //#include "../SnakeMapRedactor/MapEditor.h"
 #include "Account.h"
+#include "SlideShow.h"
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
 
@@ -106,10 +107,37 @@ int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
+	
 	cout.setf(ios::boolalpha);
 	ShowConsoleCursor(false);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 	SetConsoleTitleW(TEXT("Игра \"Змейка\""));
+	
+
+	
+	vector<Slide> slides = { {{R"Slide(
+########################################
+#                                      #
+#      %2.~~~~~~%D+%7                        #
+#                                      #
+########################################
+)Slide", R"Slide(
+########################################
+#                                      #
+#       %2.~~~~~~%D+%7                       #
+#                                      #
+########################################
+)Slide", R"Slide(
+########################################
+#                                      #
+#        %2.~~~~~~%D+%7                      #
+#                                      #
+########################################
+)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."} };
+	SlideShow slideshow(slides);
+	slideshow.start();
+	
+	
 	string logo = R"Main(
   ________   _____  ___         __       __   ___    _______  
  /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
