@@ -62,6 +62,24 @@ using namespace std;
 //	return FALSE;
 //}
 
+void aboutAuthor() {
+	string raw = R"Au(
+%4Об авторе
+
+Я %2Осипов Дмитрий Максимович%7, также известный как Джим Керри, DarkL1ght и Existed, мне %3014 лет%7.
+Как вы уже заметили, это учебный проект, созданный в качестве экзаменационной работы для %6КА "ШАГ"%7.
+Сюда я попал достаточно давно, так как у меня была диагностирована неизлечимая тяга к созданию ПО.
+Эту игру я создал для переосмысления глобального концепта змейки. Эта Змейка не такая, как остальные. Она %Aнавороченная%7.
+При создании игры я помогал и мне помогал %2Алекс-Тейлор%7, также известный как dankozz1t.
+)Au";
+	printRawF(raw, 115,20, true);
+	vector<string> buttons = {"Перейти на GitHub-репозиторий", "Назад"};
+
+
+	CenteredMenu menu;
+	int choose = menu.select_vertical(buttons, 100, 30) + 1;
+	if (choose == 1) system("start https://github.com/ExistedGit/Snake-STEPGame");
+}
 
 void easterEggCheck(string name) {
 	if (name == "EXISTED") {
@@ -115,27 +133,27 @@ int main() {
 	
 
 	
-	vector<Slide> slides = { {{R"Slide(
-########################################
-#                                      #
-#      %2.~~~~~~%D+%7                        #
-#                                      #
-########################################
-)Slide", R"Slide(
-########################################
-#                                      #
-#       %2.~~~~~~%D+%7                       #
-#                                      #
-########################################
-)Slide", R"Slide(
-########################################
-#                                      #
-#        %2.~~~~~~%D+%7                      #
-#                                      #
-########################################
-)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."} };
-	SlideShow slideshow(slides);
-	slideshow.start();
+//	vector<Slide> slides = { {{R"Slide(
+//########################################
+//#                                      #
+//#      %2.~~~~~~%D+%7                        #
+//#                                      #
+//########################################
+//)Slide", R"Slide(
+//########################################
+//#                                      #
+//#       %2.~~~~~~%D+%7                       #
+//#                                      #
+//########################################
+//)Slide", R"Slide(
+//########################################
+//#                                      #
+//#        %2.~~~~~~%D+%7                      #
+//#                                      #
+//########################################
+//)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."} };
+//	SlideShow slideshow(slides);
+	//slideshow.start();
 	
 	
 	string logo = R"Main(
@@ -155,7 +173,7 @@ int main() {
 	defaultMapDir.append(L"\\Maps\\Default.snakemap");
 	wstring mapFile = defaultMapDir;
 	CenteredMenu mainMenu;
-	vector<string> buttons = { "Новая игра", "Обучение",  "Таблица рекордов", "Настройки", "Выход" };
+	vector<string> buttons = { "Новая игра", "Обучение",  "Таблица рекордов", "Настройки", "Об авторе", "Выход" };
 
 	wstring musicFile = dir;
 	musicFile.append(L"\\Resources\\menuMusic.wav");
@@ -165,8 +183,7 @@ int main() {
 	bool firstLogoPrint = true,
 		musicPaused = true;
 	
-	//thread musicThread;
-	
+
 	mciSendStringW(L"open \"Resources/menuMusic.mp3\" type mpegvideo alias music", NULL, 0, 0);
 	while (true) {
 		
@@ -283,6 +300,9 @@ int main() {
 			break;
 		}
 		case 5:
+			aboutAuthor();
+			break;
+		case 6:
 			
 			exit(0);
 			break;
