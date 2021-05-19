@@ -71,14 +71,15 @@ void aboutAuthor() {
 Сюда я попал достаточно давно, так как у меня была диагностирована неизлечимая тяга к созданию ПО.
 Эту игру я создал для переосмысления глобального концепта змейки. Эта Змейка не такая, как остальные. Она %Aнавороченная%7.
 При создании игры я помогал и мне помогал %2Алекс-Тейлор%7, также известный как dankozz1t.
-)Au";
+Рекомендую посетить его %6GitHub%7-репозиторий и ознакомиться с Крысой.)Au";
 	printRawF(raw, 115,20, true);
-	vector<string> buttons = {"Перейти на GitHub-репозиторий", "Назад"};
+	vector<string> buttons = {"Перейти на GitHub Змейки", "Перейти на GitHub Крысы", "Назад"};
 
 
 	CenteredMenu menu;
 	int choose = menu.select_vertical(buttons, 100, 30) + 1;
 	if (choose == 1) system("start https://github.com/ExistedGit/Snake-STEPGame");
+	else if (choose == 2) system("start https://github.com/dankozz1t/RatSimulator");
 }
 
 void easterEggCheck(string name) {
@@ -153,7 +154,7 @@ int main() {
 //########################################
 //)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."} };
 //	SlideShow slideshow(slides);
-	//slideshow.start();
+//	slideshow.start();
 	
 	
 	string logo = R"Main(

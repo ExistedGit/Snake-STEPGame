@@ -143,7 +143,7 @@ void printRawF(string raw, int x, int _y, bool centered = false) { // Посим
 		vector<string> strings; // Массив отдельных строк из raw
 		string currentString = ""; // Буфер для отделения
 		for (int i = 0; raw[i] != '\0'; i++) {
-			if (raw[i] == '\n') {
+			if (raw[i] == '\n' || raw[i + 1] == '\0') {
 				strings.push_back(currentString); // Если начинается новая строчка, текущую записываем в массив
 				currentString = "";
 			} else currentString.push_back(raw[i]); // Если нет, продолжаем запись в буфер

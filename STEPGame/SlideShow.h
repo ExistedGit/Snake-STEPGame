@@ -1,8 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 #include <iostream>
 #include <vector>
 #include "FormatText.h"
+#include "Menu.h"
 
 using namespace std;
 
@@ -12,7 +13,26 @@ struct Slide {
 	string title, desc;
 
 };
-
+void printFrame(int width = 159, int height = 79, int posX = 1, int posY = 1, int color = 7) //Р РёСЃРѕРІРєР° СЂР°РјРєРё РїРѕ Р·Р°РґР°РЅС‹Рј РїР°СЂР°РјРµС‚СЂР°Рј
+{
+	SetColor(color);
+	for (int y = posY; y < posY + height; y++)
+	{
+		for (int x = posX; x < posX + width; x++)
+		{
+			gotoxy(x, y);
+			bool angle = (x == posX && y == posY) || (x == posX && y == posY + height - 1) ||
+				(y == posY && x == posX + width - 1) || (y == posY + height - 1 && x == posX + width - 1);
+			if (angle)
+				cout << "#";
+			else if (y == posY || y == posY + height - 1)
+				cout << "-";
+			else if (x == posX || x == posX + width - 1)
+				cout << "|";
+		}
+	}
+	SetColor();
+}
 struct SlideShow {
 	vector<Slide> slides = { {} };
 
@@ -20,24 +40,7 @@ struct SlideShow {
 		slides = _slides;
 	}
 
-	void printFrame( int width = 80, int height = 25, int posX = 10, int posY = 5) //Рисовка рамки по заданым параметрам
-	{
-		for (int y = posY; y < posY + height; y++)
-		{
-			for (int x = posX; x < posX + width; x++)
-			{
-				gotoxy(x, y);
-				bool angle = (x == posX && y == posY) || (x == posX && y == posY + height - 1) ||
-					(y == posY && x == posX + width - 1) || (y == posY + height - 1 && x == posX + width - 1);
-				if (angle)
-					cout << "#";
-				else if (y == posY || y == posY + height - 1)
-					cout << "-";
-				else if (x == posX || x == posX + width - 1)
-					cout << "|";
-			}
-		}
-	}
+	
 
 	
 	int printSlide(int slidePos, Slide slide, int sleepTime = 500) {
@@ -76,5 +79,72 @@ struct SlideShow {
 			int direction = printSlide(0, slides[0]);
 			break;
 		}
+	}
+};
+
+struct SlideMenu {
+	vector<SlideShow> slideshows;
+	int select_vertical(vector <string> menu, int posX = 1, int posY = 0)
+	{
+		char c;
+		int pos = 0;
+
+		do
+		{
+			for (int i = 0; i < menu.size(); i++)
+			{
+				if (i == pos)
+				{
+					//SetColor(fgactive, bgactive);
+					gotoxy(posX, posY + i);
+					for (int i = 0; i < findMaxString(menu); i++) cout << " ";
+					gotoxy(posX, posY + i);
+					cout << menu[i] << endl;
+					//SetColor(fgdefault, bgdefault);
+				}
+				else
+				{
+					//SetColor(fgdefault, bgdefault);
+					gotoxy(posX, posY + i);
+					for (int i = 0; i < findMaxString(menu); i++) cout << " ";
+					int len = menu[i].length();
+					gotoxy(posX, posY + i);
+					cout << menu[i] << endl;
+					//SetColor(fgactive, bgactive);
+				}
+
+			}
+			c = _getch();
+			switch (c)
+			{
+			case 72:
+				if (pos > 0)
+					pos--;
+				else {
+					pos = menu.size() - 1;
+				}
+				break;
+			case 80:
+				if (pos < menu.size() - 1)
+					pos++;
+				else {
+					pos = 0;
+				}
+				break;
+			case 13:
+				break;
+			default:
+				break;
+			}
+		} while (c != 13);
+		SetColor(7, 0);
+		return pos;
+	}
+
+	void start() {
+		printFrame();
+		printFrame(20, 79);
+		
+
 	}
 };
