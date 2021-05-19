@@ -84,46 +84,98 @@ void operator<<(fostream& fos, string text) {
 fostream fcout; // Объект форматированного потока fostream по умолчанию
 
 
-void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0) { // Посимвольно копирует 
-	int y = 0;
-	SetColor(fg, bg);
-	for (int i = 0; i < raw.size(); i++) {
-		cout << raw[i];
-		if (raw[i] == '\n') {
-			y++;
-			gotoxy(x, _y + y);
+void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0, bool centered=false) { // Посимвольно копирует 
+	if (centered) {
+		vector<string> strings;
+		string currentString = "";
+		for (int i = 0; raw[i] != '\0'; i++) {
+			if (raw[i] == '\n') {
+				strings.push_back(currentString);
+				currentString = "";
+			} else
+				currentString.push_back(raw[i]);
+		}
+		
+		for (int i = 0; i < strings.size(); i++) {
+			gotoxy(x - (strings[i].size()/2), _y + i);
+			cout << strings[i];
 		}
 	}
-	SetColor();
-}
-void printRawF(string raw, int x, int _y) { // Посимвольно копирует c форматированием
-	int y = 0;
-	
-	for (int i = 0; i < raw.size(); i++) {
-		bool ifFG = false, ifBG = false;
-		int fg = 7, bg = 0;
-		if(raw[i] == '%'){
-			if (hexIntMap.count(toupper(raw[i + 1]))) {
-				fg = hexIntMap[toupper(raw[i + 1])];
-				ifFG = true;
-			}
-
-			if (hexIntMap.count(toupper(raw[i + 2]))) {
-				bg = hexIntMap[toupper(raw[i + 2])];
-				ifBG = true;
-			}
-			SetColor(fg, bg);
-			i += ifFG + ifBG;
-		}
-		else {
+	else {
+		int y = 0;
+		SetColor(fg, bg);
+		for (int i = 0; i < raw.size(); i++) {
 			cout << raw[i];
 			if (raw[i] == '\n') {
 				y++;
 				gotoxy(x, _y + y);
 			}
 		}
+		SetColor();
 	}
-	SetColor();
+}
+void printRawF(string raw, int x, int _y, bool centered = false) { // Посимвольно копирует c форматированием
+	if (centered) {
+		vector<string> strings;
+		string currentString = "";
+		for (int i = 0; raw[i] != '\0'; i++) {
+			if (raw[i] == '\n') {
+				strings.push_back(currentString);
+				currentString = "";
+			} else currentString.push_back(raw[i]);
+		}
+	
+		for (int i = 0; i < strings.size(); i++) {
+			gotoxy(x - strings[i].size() / 2, _y + i);
+			for (int j = 0; j < strings[i].size(); j++) {
+				bool ifFG = false, ifBG = false;
+				int fg = 7, bg = 0;
+				if (strings[i][j] == '%') {
+					if (hexIntMap.count(strings[i][j+1])) {
+						fg = hexIntMap[strings[i][j+1]];
+						ifFG = true;
+					}
+
+					if (hexIntMap.count(strings[i][j+2])) {
+						bg = hexIntMap[strings[i][j +2]];
+						ifBG = true;
+					}
+					j +=  ifFG + ifBG;
+
+					SetColor(fg, bg);
+				} else cout << strings[i][j];
+			}
+			SetColor();
+		}
+	}
+	else {
+		int y = 0;
+		for (int i = 0; i < raw.size(); i++) {
+			bool ifFG = false, ifBG = false;
+			int fg = 7, bg = 0;
+			if (raw[i] == '%') {
+				if (hexIntMap.count(toupper(raw[i + 1]))) {
+					fg = hexIntMap[toupper(raw[i + 1])];
+					ifFG = true;
+				}
+
+				if (hexIntMap.count(toupper(raw[i + 2]))) {
+					bg = hexIntMap[toupper(raw[i + 2])];
+					ifBG = true;
+				}
+				SetColor(fg, bg);
+				i += ifFG + ifBG;
+			}
+			else {
+				cout << raw[i];
+				if (raw[i] == '\n') {
+					y++;
+					gotoxy(x, _y + y);
+				}
+			}
+		}
+		SetColor();
+	}
 }
 
 // улучшенный вариант с возможностью задержки вывода символов, форматирования по центру и чего-то ещё
@@ -133,6 +185,10 @@ void _printRaw(string raw, int x, int _y, int textСolor = 7, int backgroundСol
 	if (!(textСolor == 7 && backgroundСolor == 0)) SetColor(textСolor, backgroundСolor);
 
 	for (int i = 0; i < raw.size(); i++) {
+		if (_kbhit()) {
+			int c = _getch();
+			if (c == VK_SPACE) sleep = 0;
+		}
 
 		cout << raw[i];
 		if (sleep)
