@@ -8,7 +8,6 @@
 #include "Account.h"
 #include "SlideShow.h"
 #include <mmdeviceapi.h>
-#include <endpointvolume.h>
 
 using namespace std;
 
@@ -81,6 +80,21 @@ void aboutAuthor() {
 	if (choose == 1) system("start https://github.com/ExistedGit/Snake-STEPGame");
 	else if (choose == 2) system("start https://github.com/dankozz1t/RatSimulator");
 }
+// Run SnakeMapEditor
+void runSME() { 
+	SHELLEXECUTEINFO ShExecInfo = { 0 };
+	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+	ShExecInfo.hwnd = NULL;
+	ShExecInfo.lpVerb = _T("open");
+	if (!fileExists(dir + L"\\SnakeMapEditor.exe")) ShExecInfo.lpFile = _T("SnakeMapEditor");
+	else ShExecInfo.lpFile = _T("SnakeMapEditor.exe");
+	ShExecInfo.lpDirectory = dir.c_str();
+	ShExecInfo.nShow = SW_SHOW;
+	ShExecInfo.hInstApp = NULL;
+	ShellExecuteEx(&ShExecInfo);
+}
+
 
 void easterEggCheck(string name) {
 	if (name == "EXISTED") {
@@ -134,27 +148,33 @@ int main() {
 	
 
 	
-//	vector<Slide> slides = { {{R"Slide(
-//########################################
-//#                                      #
-//#      %2.~~~~~~%D+%7                        #
-//#                                      #
-//########################################
-//)Slide", R"Slide(
-//########################################
-//#                                      #
-//#       %2.~~~~~~%D+%7                       #
-//#                                      #
-//########################################
-//)Slide", R"Slide(
-//########################################
-//#                                      #
-//#        %2.~~~~~~%D+%7                      #
-//#                                      #
-//########################################
-//)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."} };
-//	SlideShow slideshow(slides);
-//	slideshow.start();
+	Slide slides ={{R"Slide(
+########################################
+#                                      #
+#      %2.~~~~~~%D+%7                        #
+#                                      #
+########################################
+)Slide", R"Slide(
+########################################
+#                                      #
+#       %2.~~~~~~%D+%7                       #
+#                                      #
+########################################
+)Slide", R"Slide(
+########################################
+#                                      #
+#        %2.~~~~~~%D+%7                      #
+#                                      #
+########################################
+)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."};
+	
+
+	
+	
+	/*SlideShow movement(slides);
+
+	SlideMenu slidemenu;
+	slidemenu.select_vertical({movement});*/
 	
 	
 	string logo = R"Main(
@@ -174,7 +194,7 @@ int main() {
 	defaultMapDir.append(L"\\Maps\\Default.snakemap");
 	wstring mapFile = defaultMapDir;
 	CenteredMenu mainMenu;
-	vector<string> buttons = { "Новая игра", "Обучение",  "Таблица рекордов", "Настройки", "Об авторе", "Выход" };
+	vector<string> buttons = { "Новая игра", "Обучение",  "Достижения", "Настройки", "Редактор карт", "Об авторе", "Выход" };
 
 	wstring musicFile = dir;
 	musicFile.append(L"\\Resources\\menuMusic.wav");
@@ -261,6 +281,10 @@ int main() {
 			musicPaused = true; 
 
 			mainMap.Draw(mapFile);
+			if (!ach[ACH_FIRSTGAME].completed) {
+				mainMap.displayAchievement(ach[ACH_FIRSTGAME].title);
+				ach[ACH_FIRSTGAME].completed = true;
+			}
 			mainMap.Update();
 
 			if (!accExists) acc.push_back(mainMap.acc); // Сохраняем в массив данные записи
@@ -271,9 +295,11 @@ int main() {
 		case 2:
 
 			break;
-		case 3:
-			showTable(acc);
-			break;
+		case 3: {
+				AchievementMenu achMenu;
+				achMenu.start(ach);
+				break;
+			}
 		case 4: {
 			vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
 			vector<vector<string>> right = { {"Hard", "Middle", "Easy"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
@@ -301,9 +327,13 @@ int main() {
 			break;
 		}
 		case 5:
-			aboutAuthor();
+			
+			runSME();
 			break;
 		case 6:
+			aboutAuthor();
+			break;
+		case 7:
 			
 			exit(0);
 			break;

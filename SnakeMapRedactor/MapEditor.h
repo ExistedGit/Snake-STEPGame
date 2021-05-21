@@ -12,6 +12,7 @@
 #define WALL '#'
 #define SPAWN '+'
 #define PORTAL '0'
+#define ENTANGLED_PORTAL '@'
 
 enum DrawModes {
     MOVE = 0,
@@ -290,8 +291,8 @@ struct MapEditor {
    
     void displayTile(char tile) {
         SetColor();
-        vector<string> tileNames = { "1 - Пробел", "2 - Стена", "3 - Точка спавна", "4 - Портал"};
-        vector<char> tileTypes = {SPACE, WALL, SPAWN, PORTAL};
+        vector<string> tileNames = { "1 - Пробел", "2 - Стена", "3 - Точка спавна", "4 - Портал", "5 - Запутанный портал"};
+        vector<char> tileTypes = {SPACE, WALL, SPAWN, PORTAL, ENTANGLED_PORTAL};
         
         for (int i = 0; i < tileTypes.size(); i++) {
             gotoxy(width + 2, height / 2 + 2 + i);
@@ -351,14 +352,14 @@ struct MapEditor {
 
             gotoxy(oldPos[0], oldPos[1]);
             SetColor(15, 0);
-            
+            if (matrix[oldPos[1]][oldPos[0]] == ENTANGLED_PORTAL) SetColor(13,0);
             cout << matrix[oldPos[1]][oldPos[0]];
 
             SetColor();
             gotoxy(posX, posY);
             SetColor(0, 15);
             cout << matrix[posY][posX];
-
+            
             for (int i = 0; i < portals.size(); i++) {
                 gotoxy(portals[i].x, portals[i].y);
                 SetColor(portals[i].color, (posX == portals[i].x && posY == portals[i].y ? 15 : 0));
@@ -386,6 +387,7 @@ struct MapEditor {
             case KEY_LEFT:
                 if (posX > 0)posX--;
                 break;
+            
             case 0x31:
                 drawTile = SPACE;
                 break;
@@ -402,6 +404,9 @@ struct MapEditor {
                     if (portalColor == 0)portalColor++;
                 } else drawTile = PORTAL;
                 break;
+            case 0x35:
+                drawTile = ENTANGLED_PORTAL;
+                break;
             case 'z': case 'Z':
                 drawMode = MOVE;
                 break;
@@ -411,13 +416,13 @@ struct MapEditor {
             case 'c': case 'C':
                 drawMode = POINTDRAW;
                 break;
-            case VK_SPACE:
+            case VK_SPACE: {
                 if (drawMode == POINTDRAW) {
                     if (drawTile == PORTAL) {
                         int sameColorPortals = 0;
-                        for (int i = 0; i<portals.size(); i++) { // Смотрим массив порталов
+                        for (int i = 0; i < portals.size(); i++) { // Смотрим массив порталов
                             if (portals[i].color == portalColor) { // Если цвет портала i равен текущему,
-                                if(sameColorPortals < 1)sameColorPortals++; // мы проверяем, был ли он больше, чем вторым
+                                if (sameColorPortals < 1)sameColorPortals++; // мы проверяем, был ли он больше, чем вторым
                                 else { // Если да, то удаляем последний из порталов этого цвета 
                                     gotoxy(portals[i].x, portals[i].y);
                                     SetColor(15, 0);
@@ -430,12 +435,12 @@ struct MapEditor {
                         for (int i = 0; i < portals.size(); i++) { // удаляем порталы, которые стоят на месте курсора
                             if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
                         }
-                        
+
                         portals.push_back({ posX, posY, portalColor });
                         gotoxy(posX, posY);
                         SetColor(portalColor);
                         cout << '0';
-                        
+
                     }
                     else {
                         if (drawTile != SPAWN) matrix[posY][posX] = drawTile;
@@ -457,9 +462,11 @@ struct MapEditor {
                             if (portals[i].x == posX && portals[i].y == posY) portals.erase(portals.begin() + i);
                         }
                     }
-                    
+
                 }
-                break;
+                    
+            }
+            break;
             case 's': case 'S':
                 save();
                 break;
@@ -468,6 +475,7 @@ struct MapEditor {
                 active = false;
                 break;
             }
+           
             
             if (drawMode == DRAW) {
                 if (drawTile == PORTAL) {
@@ -518,6 +526,7 @@ struct MapEditor {
             
             
         }
+
         system("cls");
     }
 };

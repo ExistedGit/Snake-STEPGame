@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Account.h" />
+    <ClInclude Include="Achievements.h" />
     <ClInclude Include="FormatText.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Menu.h" />
