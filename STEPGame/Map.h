@@ -10,16 +10,6 @@
 #include <mmsystem.h>
 #include<stdlib.h>
 
-#include <thread>
-
-//#include <thread>
-
-
-
-
-
-
-
 enum Difficulties {
 	HARD = 1,
 	MIDDLE,
@@ -27,11 +17,6 @@ enum Difficulties {
 };
 
 using namespace std;
-
-
-
-
-
 
 void playBiteSound() {
 	
