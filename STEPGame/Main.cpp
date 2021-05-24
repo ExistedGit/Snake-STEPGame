@@ -10,55 +10,7 @@
 
 using namespace std;
 
-//bool ChangeVolume(double nVolume, bool bScalar)
-//{
-//
-//	HRESULT hr = NULL;
-//	bool decibels = false;
-//	bool scalar = false;
-//	double newVolume = nVolume;
-//
-//	CoInitialize(NULL);
-//	IMMDeviceEnumerator* deviceEnumerator = NULL;
-//	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_INPROC_SERVER,
-//		__uuidof(IMMDeviceEnumerator), (LPVOID*)&deviceEnumerator);
-//	IMMDevice* defaultDevice = NULL;
-//
-//	hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
-//	deviceEnumerator->Release();
-//	deviceEnumerator = NULL;
-//
-//	IAudioEndpointVolume* endpointVolume = NULL;
-//	hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume),
-//		CLSCTX_INPROC_SERVER, NULL, (LPVOID*)&endpointVolume);
-//	defaultDevice->Release();
-//	defaultDevice = NULL;
-//
-//	// -------------------------
-//	float currentVolume = 0;
-//	endpointVolume->GetMasterVolumeLevel(&currentVolume);
-//	//printf("Current volume in dB is: %f\n", currentVolume);
-//
-//	hr = endpointVolume->GetMasterVolumeLevelScalar(&currentVolume);
-//	//CString strCur=L"";
-//	//strCur.Format(L"%f",currentVolume);
-//	//AfxMessageBox(strCur);
-//
-//	// printf("Current volume as a scalar is: %f\n", currentVolume);
-//	if (bScalar == false)
-//	{
-//		hr = endpointVolume->SetMasterVolumeLevel((float)newVolume, NULL);
-//	}
-//	else if (bScalar == true)
-//	{
-//		hr = endpointVolume->SetMasterVolumeLevelScalar((float)newVolume, NULL);
-//	}
-//	endpointVolume->Release();
-//
-//	CoUninitialize();
-//
-//	return FALSE;
-//}
+#define MAX_WARNING_STRSIZE 40
 
 bool aboutAuthor() { // Возвращает false, если выбран вариант "Назад"
 	string raw = R"Au(%4Об авторе
@@ -105,6 +57,21 @@ void easterEggCheck(string name) {
 	}
 }
 
+COORD GetConsoleCursorPosition(HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE))
+{
+	CONSOLE_SCREEN_BUFFER_INFO cbsi;
+	if (GetConsoleScreenBufferInfo(hConsoleOutput, &cbsi))
+	{
+		return cbsi.dwCursorPosition;
+	}
+	else
+	{
+		// The function failed. Call GetLastError() for details.
+		COORD invalid = { 0, 0 };
+		return invalid;
+	}
+}
+
 
 void mciSend(wstring ws) {
 	mciSendStringW(ws.c_str(), NULL, 0, 0);
@@ -113,21 +80,21 @@ void mciSend(wstring ws) {
 int main() {
 	setlocale(LC_ALL, "");
 
-	
-	
-	
+
+
+
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	
+
 	cout.setf(ios::boolalpha);
 	ShowConsoleCursor(false);
 	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 	SetConsoleTitleW(TEXT("Игра \"Змейка\""));
-	
 
-	
-	Slide slides ={{R"Slide(
+
+
+	Slide slides = { {R"Slide(
 ########################################
 #                                      #
 #      %2.~~~~~~%D+%7                        #
@@ -145,17 +112,17 @@ int main() {
 #        %2.~~~~~~%D+%7                      #
 #                                      #
 ########################################
-)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение."};
-	
+)Slide"}, "Передвижение", "Важнейшим аспектом \"Змейки\" является передвижение." };
 
-	
-	
+
+
+
 	/*SlideShow movement(slides);
 
 	SlideMenu slidemenu;
 	slidemenu.select_vertical({movement});*/
-	
-	
+
+
 	string logo = R"Main(
   ________   _____  ___         __       __   ___    _______  
  /"       ) (\"   \|"  \       /""\     |/"| /  ")  /"     "| 
@@ -165,35 +132,35 @@ int main() {
  /" \   :)  |    \    \ |  /   /  \\  \ |: | \  \  (:      "| 
 (_______/    \___|\____\) (___/    \___)(__|  \__)  \_______) )Main";
 
-	
+
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
-	
+
 	loadAccount();
 	atexit(saveAccount);
 
 	wstring defaultMapDir = dir;
 	defaultMapDir.append(L"\\Maps\\Default.snakemap");
 	wstring mapFile = defaultMapDir;
-	CenteredMenu mainMenu;
+	OrbitedCenteredMenu mainMenu;
 	vector<string> buttons = { "Новая игра", "Обучение",  "Достижения", "Настройки", "Редактор карт", "Об авторе", "Выход" };
 
 	wstring musicFile = dir;
 	musicFile.append(L"\\Resources\\menuMusic.wav");
 
-	int snakeLengthModifier =0 ;
+	int snakeLengthModifier = 0;
 
 	bool firstLogoPrint = true,
 		musicPaused = true;
-	
+
 
 	mciSendStringW(L"open \"Resources/menuMusic.mp3\" type mpegvideo alias music", NULL, 0, 0);
 	while (true) {
-		
+
 		if (firstLogoPrint) {
 			_printRaw(logo, 80, 2 + 10, LightGreen, 0, 0, 5);
 
-			
+
 
 			gotoxy(80 + 10, 25);
 
@@ -201,33 +168,107 @@ int main() {
 			mciSendStringW(L"play music from 0 repeat", NULL, 0, 0);
 			musicPaused = false;
 			system("pause>nul");
-			
+
 			system("cls");
 		}
 		printRaw(logo, 80, 2 + 10, LightGreen);
-		
-		
+
+
 		if (!firstLogoPrint && musicPaused) {
 			mciSendStringW(L"play music from 0 repeat", NULL, 0, 0);
 			musicPaused = false;
 		}
 		else firstLogoPrint = false;
 
+		gotoxy(90 - mainAcc.name.length() - 2, 23);
+		SetColor();
+		for (int i = 0; i < mainAcc.name.length()*2 + 3; i++) cout << " ";
 		printCentered(mainAcc.name, 90, 23);
+
+
 		printCentered("Рекорд: " + to_string(mainAcc.maxScore), 90, 23 + 1);
 		printCentered("Сыграно игр: " + to_string(mainAcc.games), 90, 23 + 2);
 
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
 
-		
-		
-		
-		system("cls");
+
+
+		SetColor();
+
 		switch (chooseMain) {
+		case 0: { // Редактирование ника
+
+			OrbitedCenteredMenu nickEditMenu;
+			int editChoose = nickEditMenu.select_vertical({ mainAcc.name }, 90 - mainAcc.name.length() / 2, 23);
+			if (editChoose == OMP_RIGHT) {
+				continue;
+			}
+			if (editChoose != OMP_ESC) {
+				system("cls");
+				gotoxy(30, 32);
+				cout << "[ESC] - Выйти";
+				gotoxy(30, 30);
+				string baseString = "Введите новое имя: ";
+				cout << baseString;
+				// Авторский метод ввода текста.
+				string nickString = "";
+				bool escPressed = false;
+				while (!escPressed) {
+					
+					
+					char nickChar = _getch();
+
+					gotoxy(30 + baseString.size(), 30 - 2);
+					for (int i = 0; i < MAX_WARNING_STRSIZE; i++) cout << " ";
+					gotoxy(30 + baseString.size() + nickString.size(), 30);
+
+					if (nickChar == VK_ESCAPE) {
+						escPressed = true;
+						break;
+					}
+					else if (nickChar == VK_BACK) {
+
+						if (!nickString.empty()) {
+							COORD cursorPos = GetConsoleCursorPosition();
+							gotoxy(cursorPos.X - 1, cursorPos.Y);
+							cout << " ";
+							gotoxy(cursorPos.X - 1, cursorPos.Y);
+							nickString.pop_back();
+						}
+					}
+					else if (nickChar == VK_RETURN) {
+						if (!nickString.empty()) {
+							if (nickString.size() > 20) {
+								COORD cursorPos = GetConsoleCursorPosition();
+								gotoxy(cursorPos.X - nickString.size(), cursorPos.Y - 2);
+								SetColor(Red);
+								cout << "Имя не должно быть длиннее 20 символов!";
+								SetColor();
+							} else break;
+						}
+						else {
+							COORD cursorPos = GetConsoleCursorPosition();
+							gotoxy(cursorPos.X - nickString.size(), cursorPos.Y - 2);
+							SetColor(Red);
+							cout << "Имя не должно быть пустым!";
+							SetColor();
+						}
+					}
+					else if (isgraph(nickChar) || isspace(nickChar)) {
+						cout << nickChar;
+						nickString.push_back(nickChar);
+					}
+				}
+				if (!escPressed) mainAcc.name = nickString;
+			}
+			break;
+		}
 		case 1: {
+			system("cls");
+
 			mainMap.reset();
 			mainMap.s.length += snakeLengthModifier;
-			
+
 			easterEggCheck(mainAcc.name);
 
 			system("cls");
@@ -241,9 +282,9 @@ int main() {
 			}
 			else mapFile = defaultMapDir;
 			system("cls");
-			
+
 			mciSendStringW(L"stop music", NULL, 0, 0); // музыка останавливается перед началом змейки
-			musicPaused = true; 
+			musicPaused = true;
 
 			mainMap.Draw(mapFile);
 			if (!mainAcc.ach[ACH_FIRSTGAME].completed) {
@@ -258,11 +299,14 @@ int main() {
 
 			break;
 		case 3: {
-				AchievementMenu achMenu;
-				achMenu.start(mainAcc.ach);
-				break;
-			}
+			system("cls");
+			AchievementMenu achMenu;
+			achMenu.start(mainAcc.ach);
+			break;
+		}
 		case 4: {
+			system("cls");
+
 			vector<string> left = { "Сложность", "Длина змейки", "Длина за каждую еду" };
 			vector<vector<string>> right = { {"Hard", "Middle", "Easy"}, {"+0", "+5", "+10"}, {"+1", "+2", "+3"} };
 
@@ -270,17 +314,17 @@ int main() {
 			map<int, int> choose = settings.startMenu(left, right, 90, 20, positions);
 
 			mainMap.difficulty = choose[0] + 1;
-			
+
 			switch (choose[1]) {
 			case 1:
 				snakeLengthModifier = 5;
 				break;
 			case 2:
-				snakeLengthModifier=10;
+				snakeLengthModifier = 10;
 				break;
 			}
-			
-			
+
+
 			positions = {};
 			for (int i = 0; i < choose.size(); i++) {
 				positions.push_back(choose[i]);
@@ -289,10 +333,11 @@ int main() {
 			break;
 		}
 		case 5:
-			
 			runSME();
 			break;
 		case 6: {
+			system("cls");
+
 			bool ifReturn = true;
 			while (ifReturn) {
 				ifReturn = aboutAuthor();
@@ -303,9 +348,9 @@ int main() {
 			exit(0);
 			break;
 		}
-		
-		system("cls");
-		saveAccount();
+
+			  system("cls");
+			  saveAccount();
+		}
+
 	}
-	
-}

@@ -165,8 +165,6 @@ struct CenteredMenu : Menu {
 	}
 };
 
-
-
 struct SettingsMenu {
 	
 
@@ -268,4 +266,92 @@ struct SettingsMenu {
 		}
 		return returnMap;
 	}
-}; 
+};
+
+enum OrbitedMenuPos {
+	OMP_ESC = -3,
+	OMP_RIGHT,
+	OMP_LEFT
+};
+
+// Класс меню, рядом с которым тоже находится некий объект, на который нужно переключаться из меню.
+// Единственное отличие - возможность обработки кнопок вправо и влево.
+// Если пользователь перешёл влево - возвращает -1, а если вправо, то -2.
+// Также поддерживает Esc и возвращает -3
+struct OrbitedCenteredMenu : CenteredMenu{
+	int select_vertical(vector <string> menu, int posX = 1, int posY = 0)
+	{
+		char c;
+		int pos = 0;
+		int max = findMaxString(menu);
+
+		do
+		{
+			for (int i = 0; i < menu.size(); i++)
+			{
+				if (i == pos)
+				{
+					SetColor(fgactive, bgactive);
+					gotoxy(posX - 1, posY + i);
+					cout << " ";
+					if (max - menu[i].size() == 1) cout << " ";
+					for (int i = 0; i < max; i++) cout << " "; // Более-менее красивое выравнивание получается так
+					if (max - menu[i].size() != 1) cout << " ";
+					gotoxy(posX + (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
+					cout << menu[i];
+
+					SetColor(fgdefault, bgdefault);
+				}
+				else
+				{
+					SetColor(fgdefault, bgdefault);
+					gotoxy(posX - 1, posY + i);
+					cout << " ";
+					if (max - menu[i].size() == 1) cout << " ";
+					for (int i = 0; i < max; i++) cout << " ";
+					if (max - menu[i].size() != 1) cout << " ";
+					gotoxy(posX + (max - menu[i].size() == 1) + (max - menu[i].size()) / 2, posY + i);
+					cout << menu[i];
+					SetColor(fgactive, bgactive);
+				}
+
+			}
+			c = _getch();
+			switch (c)
+			{
+			case 72:
+				if (pos > 0)
+					pos--;
+				else {
+					pos = menu.size() - 1;
+				}
+				playButtonSwitchSound();
+				break;
+			case 80:
+				if (pos < menu.size() - 1)
+					pos++;
+				else {
+					pos = 0;
+				}
+				playButtonSwitchSound();
+				break;
+			case 13:
+				playButtonClickSound();
+				break;
+			case KEY_LEFT:
+				return OMP_LEFT;
+				break;
+			case KEY_RIGHT:
+				return OMP_RIGHT;
+				break;
+			case VK_ESCAPE:
+				return OMP_ESC;
+				break;
+			default:
+				break;
+			}
+		} while (c != 13);
+		SetColor(7, 0);
+		return pos;
+	}
+};
