@@ -295,7 +295,7 @@ void _printRaw(string raw, int x, int _y, int textСolor = 7, int backgroundСol
 	for (int i = 0; i < raw.size(); i++) {
 		if (_kbhit()) {
 			int c = _getch();
-			if (c == VK_SPACE) sleep = 0;
+			if (c == VK_SPACE || c == VK_RETURN) sleep = 0;
 		}
 
 		cout << raw[i];

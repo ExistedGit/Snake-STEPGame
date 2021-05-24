@@ -10,6 +10,7 @@
 
 #define SPACE ' '
 #define WALL '#'
+#define WALL_MIRROR '!'
 #define SPAWN '+'
 #define PORTAL '0'
 #define ENTANGLED_PORTAL '@'
@@ -181,8 +182,12 @@ struct MapEditor {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 SetColor(15, 0);
-                
-                cout << matrix[i][j];
+                if (matrix[i][j] == ENTANGLED_PORTAL) SetColor(13);
+                else if (matrix[i][j] == WALL_MIRROR) SetColor(11);
+
+                if (matrix[i][j] == WALL_MIRROR) {
+                    cout << '#';
+                } else cout << matrix[i][j];
                 SetColor();
             }
             cout << endl;
@@ -217,6 +222,10 @@ struct MapEditor {
             char buff[320];
             int i = 0;
             while (fin.getline(buff, 320)) { // Парсер файла
+                if (buff == "") {
+                    resizeMenu();
+                    start();
+                }
                 width = strlen(buff);
                 matrix.push_back({});
                 for (int j = 0; buff[j] != '\0'; j++) {
@@ -251,9 +260,10 @@ struct MapEditor {
                                 isPortal = true;
                             }
                         }
-
-                        if(!isPortal) fout << matrix[i][j]; // И не выводит матричную плитку, если так
-                        
+                        if (!isPortal) {// И не выводит матричную плитку, если так
+                            fout << matrix[i][j]; 
+                            
+                        }
                     }
                     fout << endl;
                 }
@@ -291,8 +301,8 @@ struct MapEditor {
    
     void displayTile(char tile) {
         SetColor();
-        vector<string> tileNames = { "1 - Пробел", "2 - Стена", "3 - Точка спавна", "4 - Портал", "5 - Запутанный портал"};
-        vector<char> tileTypes = {SPACE, WALL, SPAWN, PORTAL, ENTANGLED_PORTAL};
+        vector<string> tileNames = { "1 - Пробел", "2 - Стена", "3 - Точка спавна", "4 - Портал", "5 - Запутанный портал", "6 - Зеркальная стена"};
+        vector<char> tileTypes = {SPACE, WALL, SPAWN, PORTAL, ENTANGLED_PORTAL, WALL_MIRROR};
         
         for (int i = 0; i < tileTypes.size(); i++) {
             gotoxy(width + 2, height / 2 + 2 + i);
@@ -316,16 +326,16 @@ struct MapEditor {
         SettingsMenu resizeMenu;
         vector<string> left = { "Ширина", "Высота" };
         vector<vector<string>> right = { {}, {} };
-        for (int i = 5; i <= 160; i++) {
+        for (int i = 10; i <= 160; i++) {
             right[0].push_back(to_string(i));
         }
-        for (int i = 5; i <= 60; i++) {
+        for (int i = 10; i <= 60; i++) {
             right[1].push_back(to_string(i));
         }
-        map<int, int> choose = resizeMenu.startMenu(left, right, 90, 20, {80-5, 40-5});
+        map<int, int> choose = resizeMenu.startMenu(left, right, 90, 20, {80-10, 40-10});
         
-        width = choose[0] + 5;
-        height = choose[1] + 5;
+        width = choose[0] + 10;
+        height = choose[1] + 10;
         generateMap();
     }
 
@@ -352,13 +362,20 @@ struct MapEditor {
 
             gotoxy(oldPos[0], oldPos[1]);
             SetColor(15, 0);
-            if (matrix[oldPos[1]][oldPos[0]] == ENTANGLED_PORTAL) SetColor(13,0);
-            cout << matrix[oldPos[1]][oldPos[0]];
-
+            if (matrix[oldPos[1]][oldPos[0]] == ENTANGLED_PORTAL) SetColor(13, 0);
+            else if (matrix[oldPos[1]][oldPos[0]] == WALL_MIRROR) SetColor(11, 0);
+            
+            if (matrix[oldPos[1]][oldPos[0]] == WALL_MIRROR) {
+                cout << '#';
+            } else cout << matrix[oldPos[1]][oldPos[0]];
             SetColor();
             gotoxy(posX, posY);
             SetColor(0, 15);
-            cout << matrix[posY][posX];
+            if (matrix[posY][posX] == WALL_MIRROR) {
+                SetColor(12, 15);
+                cout << '#';
+            }
+            else cout << matrix[posY][posX];
             
             for (int i = 0; i < portals.size(); i++) {
                 gotoxy(portals[i].x, portals[i].y);
@@ -406,6 +423,9 @@ struct MapEditor {
                 break;
             case 0x35:
                 drawTile = ENTANGLED_PORTAL;
+                break;
+            case 0x36:
+                drawTile = WALL_MIRROR;
                 break;
             case 'z': case 'Z':
                 drawMode = MOVE;

@@ -4,9 +4,8 @@
 #include <iomanip>
 #include "Map.h"
 #include "Menu.h"
-//#include "../SnakeMapRedactor/MapEditor.h"
-#include "Account.h"
 #include "SlideShow.h"
+
 #include <mmdeviceapi.h>
 
 using namespace std;
@@ -61,9 +60,8 @@ using namespace std;
 //	return FALSE;
 //}
 
-void aboutAuthor() {
-	string raw = R"Au(
-%4Об авторе
+bool aboutAuthor() { // Возвращает false, если выбран вариант "Назад"
+	string raw = R"Au(%4Об авторе
 
 Я %2Осипов Дмитрий Максимович%7, также известный как Джим Керри, DarkL1ght и Existed, мне %3014 лет%7.
 Как вы уже заметили, это учебный проект, созданный в качестве экзаменационной работы для %6КА "ШАГ"%7.
@@ -79,6 +77,8 @@ void aboutAuthor() {
 	int choose = menu.select_vertical(buttons, 100, 30) + 1;
 	if (choose == 1) system("start https://github.com/ExistedGit/Snake-STEPGame");
 	else if (choose == 2) system("start https://github.com/dankozz1t/RatSimulator");
+	
+	return choose != 3; // Таким вот образом мы избегаем множественных точек выхода
 }
 // Run SnakeMapEditor
 void runSME() { 
@@ -105,27 +105,6 @@ void easterEggCheck(string name) {
 	}
 }
 
-void showTable(vector<Account> acc) {
-	const int tableWidth = 30; // ну а чё б и нет в принципе, так удобнее и понятнее, что это за 30
-	
-	gotoxy(90 + 7, 15);
-	cout << "ТАБЛИЦА РЕКОРДОВ\n";
-	gotoxy(90, 15+1);
-	for (int i = 0; i < tableWidth; i++) cout << "=";
-	cout << endl;
-
-	for (int i = 0; i < acc.size(); i++) {
-		for (int j = 0; j < acc.size(); j++) {
-			if(acc[i].score > acc[j].score) swap(acc[i], acc[j]);
-		}
-	}
-
-	for (int i = 0; i < acc.size(); i++) {
-		gotoxy(90, 15 + 2 + i);
-		cout << acc[i].name << setw((tableWidth- acc[i].name.size()) < 0 ? 0 : tableWidth - acc[i].name.size()) << acc[i].score << endl;
-	}
-	system("pause>nul");
-}
 
 void mciSend(wstring ws) {
 	mciSendStringW(ws.c_str(), NULL, 0, 0);
@@ -189,6 +168,9 @@ int main() {
 	
 	vector<int> positions = { 0, 0, 0 }; // Выбранные настройки сохраняются здесь
 	Map mainMap;
+	
+	loadAccount();
+	atexit(saveAccount);
 
 	wstring defaultMapDir = dir;
 	defaultMapDir.append(L"\\Maps\\Default.snakemap");
@@ -231,7 +213,10 @@ int main() {
 		}
 		else firstLogoPrint = false;
 
-		vector<Account> acc = loadAccounts();
+		printCentered(mainAcc.name, 90, 23);
+		printCentered("Рекорд: " + to_string(mainAcc.maxScore), 90, 23 + 1);
+		printCentered("Сыграно игр: " + to_string(mainAcc.games), 90, 23 + 2);
+
 		int chooseMain = mainMenu.select_vertical(buttons, 105, 12 + 10) + 1;
 
 		
@@ -242,29 +227,9 @@ int main() {
 		case 1: {
 			mainMap.reset();
 			mainMap.s.length += snakeLengthModifier;
-
-			Account a;
-
-			gotoxy(80, 20);
-			char name[80];
-			cout << "Введите своё имя: ";
-			cin.getline(name, 80);
-
-			easterEggCheck(name);
-
-			bool accExists = false;
-			int existingAccIndex = -1;
-			for (int i = 0; i < acc.size(); i++) {// Проверяем, существует ли такая запись
-				if (acc[i].name == (string)name) {
-					mainMap.acc = acc[i];
-					accExists = true;
-					existingAccIndex = i;
-				}
-			}
-			if (mainMap.acc.score == -1) { // Если стоит значение по умолчанию(которое не может являться счётом)
-				mainMap.acc = { (string)name, 0 };
-			}
 			
+			easterEggCheck(mainAcc.name);
+
 			system("cls");
 			gotoxy(90, 20);
 			cout << "Импортировать карту?";
@@ -281,15 +246,12 @@ int main() {
 			musicPaused = true; 
 
 			mainMap.Draw(mapFile);
-			if (!ach[ACH_FIRSTGAME].completed) {
-				mainMap.displayAchievement(ach[ACH_FIRSTGAME].title);
-				ach[ACH_FIRSTGAME].completed = true;
+			if (!mainAcc.ach[ACH_FIRSTGAME].completed) {
+				mainMap.displayAchievement(mainAcc.ach[ACH_FIRSTGAME].title);
+				mainAcc.ach[ACH_FIRSTGAME].completed = true;
 			}
 			mainMap.Update();
 
-			if (!accExists) acc.push_back(mainMap.acc); // Сохраняем в массив данные записи
-			else acc[existingAccIndex] = mainMap.acc;
-			saveAccounts(acc); // Сохраняем всё это в файл
 			break;
 		}
 		case 2:
@@ -297,7 +259,7 @@ int main() {
 			break;
 		case 3: {
 				AchievementMenu achMenu;
-				achMenu.start(ach);
+				achMenu.start(mainAcc.ach);
 				break;
 			}
 		case 4: {
@@ -330,17 +292,20 @@ int main() {
 			
 			runSME();
 			break;
-		case 6:
-			aboutAuthor();
+		case 6: {
+			bool ifReturn = true;
+			while (ifReturn) {
+				ifReturn = aboutAuthor();
+			};
 			break;
+		}
 		case 7:
-			
 			exit(0);
 			break;
 		}
 		
 		system("cls");
-
+		saveAccount();
 	}
 	
 }

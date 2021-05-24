@@ -4,8 +4,8 @@
 
 #include "../SnakeMapRedactor/MapEditor.h"
 #include "Snake.h"
-#include "Account.h"
 #include "Achievements.h"
+#include "Account.h"
 #pragma comment(lib, "winmm.lib")
 #include <mmsystem.h>
 #include<stdlib.h>
@@ -76,8 +76,8 @@ struct Map {
 	vector<vector<int>> walls;
 	vector<Portal> portals;
 	vector<vector<int>> entPortals; // Entangled portals
-
-	Account acc;
+	vector<vector<int>> wallMirrors;
+	
 
 	bool isRunning = false;	
 	
@@ -91,7 +91,6 @@ struct Map {
 		walls = {};
 		portals = {};
 		entPortals = {};
-		acc = Account();
 		score = 0;
 
 
@@ -124,6 +123,9 @@ struct Map {
 				else if (buff[i] == ENTANGLED_PORTAL) {
 					entPortals.push_back({i, l});
 				}
+				else if (buff[i] == '!') {
+					wallMirrors.push_back({ i, l });
+				}
 				
 				width = strlen(buff);
 			}
@@ -142,6 +144,12 @@ struct Map {
 			cout << '0';
 			SetColor();
 		}
+		for (int i = 0; i < wallMirrors.size(); i++) {
+			SetColor(11);
+			gotoxy(wallMirrors[i][0], wallMirrors[i][1]);
+			cout << "#";
+			SetColor();
+		}
 
 		if (snakePos.empty()) {
 			snakePos = {width/2, height/2};
@@ -151,7 +159,7 @@ struct Map {
 		
 		isRunning = true;
 	}
-	void snakeCheck() { // Проверяет, не столкнулась ли змейка с препятствием
+	void snakeCheck() { // Обрабатывает взаимодействия змейки с клетками
 		for (int i = 1; i < s.bodyMatrix.size(); i++) {
 			if (s.bodyMatrix[0][0] == s.bodyMatrix[i][0] && s.bodyMatrix[0][1] == s.bodyMatrix[i][1]) isRunning = false;
 			
@@ -167,13 +175,13 @@ struct Map {
 		for (int j = 0; j < walls.size(); j++) {
 			
 			if (s.bodyMatrix[0][0] == walls[j][0] && s.bodyMatrix[0][1] == walls[j][1]) {
-				if (!ach[ACH_WALLDEATH].completed) {
-					ach[ACH_WALLDEATH].completed = true;
-					displayAchievement(ach[ACH_WALLDEATH].title);
+				if (!mainAcc.ach[ACH_WALLDEATH].completed) {
+					mainAcc.ach[ACH_WALLDEATH].completed = true;
+					displayAchievement(mainAcc.ach[ACH_WALLDEATH].title);
 				}
 				
 				isRunning = false;
-				
+				break;
 			}
 		}
 		// Обрабатываем портальные взаимодействия
@@ -206,13 +214,81 @@ struct Map {
 				
 				playPortalSound();
 
-				if (!ach[ACH_PORTALUSE].completed) {
-					ach[ACH_PORTALUSE].completed = true;
-					displayAchievement(ach[ACH_PORTALUSE].title);
+				if (!mainAcc.ach[ACH_PORTALUSE].completed) {
+					mainAcc.ach[ACH_PORTALUSE].completed = true;
+					displayAchievement(mainAcc.ach[ACH_PORTALUSE].title);
 				}
 				break;
 				//snakeCheck();
 				//drawPortals();
+			}
+		}
+		// Обработка взаимодействий с зеркальными стенами
+		for (int i = 0; i < wallMirrors.size(); i++) {
+			if (s.bodyMatrix[0][0] == wallMirrors[i][0] && s.bodyMatrix[0][1] == wallMirrors[i][1]) {
+
+				if (!mainAcc.ach[ACH_WALLMIRRORUSE].completed) {
+					mainAcc.ach[ACH_WALLMIRRORUSE].completed = true;
+					displayAchievement(mainAcc.ach[ACH_WALLMIRRORUSE].title);
+				}
+
+				switch (s.direction) {
+				case UP: case DOWN:
+					for (int j = 0; j < wallMirrors.size(); j++) {
+						if (wallMirrors[j][0] == wallMirrors[i][0] && i != j) {
+							switch (s.direction) {
+							case UP:
+								s.bodyMatrix[0][0] = wallMirrors[j][0];
+								s.bodyMatrix[0][1] = wallMirrors[j][1] - 1;
+								break;
+							case DOWN:
+								s.bodyMatrix[0][0] = wallMirrors[j][0];
+								s.bodyMatrix[0][1] = wallMirrors[j][1] + 1;
+								break;
+							}
+						}
+
+						gotoxy(wallMirrors[i][0], wallMirrors[i][1]);
+						SetColor(11);
+						cout << '#';
+						SetColor();
+
+						gotoxy(wallMirrors[j][0], wallMirrors[j][1]);
+						SetColor(11);
+						cout << '#';
+						SetColor();
+					}
+					break;
+
+				case LEFT: case RIGHT:
+					for (int j = 0; j < wallMirrors.size(); j++) {
+						if (wallMirrors[j][1] == wallMirrors[i][1] && i != j) {
+							switch (s.direction) {
+							case RIGHT:
+								s.bodyMatrix[0][0] = wallMirrors[j][0] + 1;
+								s.bodyMatrix[0][1] = wallMirrors[j][1];
+								break;
+							case LEFT:
+								s.bodyMatrix[0][0] = wallMirrors[j][0] - 1;
+								s.bodyMatrix[0][1] = wallMirrors[j][1];
+								break;
+							}
+
+							gotoxy(wallMirrors[i][0], wallMirrors[i][1]);
+							SetColor(11);
+							cout << '#';
+							SetColor();
+
+							gotoxy(wallMirrors[j][0], wallMirrors[j][1]);
+							SetColor(11);
+							cout << '#';
+							SetColor();
+						}
+					}
+					break;
+
+				}
+
 			}
 		}
 		// Обработка взаимодействий с запутанными порталами
@@ -247,9 +323,9 @@ struct Map {
 
 				playPortalSound();
 
-				if (!ach[ACH_ENTPORTALUSE].completed) {
-					ach[ACH_ENTPORTALUSE].completed = true;
-					displayAchievement(ach[ACH_ENTPORTALUSE].title);
+				if (!mainAcc.ach[ACH_ENTPORTALUSE].completed) {
+					mainAcc.ach[ACH_ENTPORTALUSE].completed = true;
+					displayAchievement(mainAcc.ach[ACH_ENTPORTALUSE].title);
 				}
 
 				break;
@@ -284,23 +360,26 @@ struct Map {
 				displayLength();
 				displayScore();
 
-				
-				if(score % (ach[ACH_100PTS].maxProgress + 1) >= ach[ACH_100PTS].progress) ach[ACH_100PTS].progress = score % (100 + 1);
-				if (score % (ach[ACH_500PTS].maxProgress + 1) >= ach[ACH_500PTS].progress)ach[ACH_500PTS].progress = score % (500 + 1);
-				if (score % (ach[ACH_2000PTS].maxProgress + 1) >= ach[ACH_2000PTS].progress)ach[ACH_2000PTS].progress = score % (2000 + 1);
+				if (score > mainAcc.maxScore) mainAcc.maxScore = score;
 
-				if (score >= 100 && !ach[ACH_100PTS].completed) {
-					ach[ACH_100PTS].completed = true;
-					displayAchievement(ach[ACH_100PTS].title);
-				} else if (score >= 500 && !ach[ACH_500PTS].completed) {
-					ach[ACH_500PTS].completed = true;
-					displayAchievement(ach[ACH_500PTS].title);
-				} else if (score >= 2000 && !ach[ACH_2000PTS].completed) {
-					ach[ACH_2000PTS].completed = true;
-					displayAchievement( ach[ACH_2000PTS].title);
+				if(score % (mainAcc.ach[ACH_100PTS].maxProgress + 1) >= mainAcc.ach[ACH_100PTS].progress) mainAcc.ach[ACH_100PTS].progress = score % (100 + 1);
+				if (score % (mainAcc.ach[ACH_500PTS].maxProgress + 1) >= mainAcc.ach[ACH_500PTS].progress)mainAcc.ach[ACH_500PTS].progress = score % (500 + 1);
+				if (score % (mainAcc.ach[ACH_2000PTS].maxProgress + 1) >= mainAcc.ach[ACH_2000PTS].progress)mainAcc.ach[ACH_2000PTS].progress = score % (2000 + 1);
+
+				if (score >= 100 && !mainAcc.ach[ACH_100PTS].completed) {
+					mainAcc.ach[ACH_100PTS].completed = true;
+					displayAchievement(mainAcc.ach[ACH_100PTS].title);
+				} else if (score >= 500 && !mainAcc.ach[ACH_500PTS].completed) {
+					mainAcc.ach[ACH_500PTS].completed = true;
+					displayAchievement(mainAcc.ach[ACH_500PTS].title);
+				} else if (score >= 2000 && !mainAcc.ach[ACH_2000PTS].completed) {
+					mainAcc.ach[ACH_2000PTS].completed = true;
+					displayAchievement( mainAcc.ach[ACH_2000PTS].title);
 				}
+
 				
-				if (score > acc.score) acc.score = score;
+				
+				
 
 				displayAcc();
 
@@ -348,31 +427,32 @@ struct Map {
 	}
 
 	void displayLength() {
-		gotoxy(width+3, height/2);
+		gotoxy(width+3, height/2 + 1);
 		SetColor(15);
 		cout << "Длина: "<< s.length;
 		SetColor();
 	}
 
 	void displayScore() {
-		gotoxy(width + 3, height / 2 - 2);
+		gotoxy(width + 3, height / 2 + 2);
 		SetColor(15);
 		cout << "Счёт: " << score;
 		SetColor();
 	}
 
 	void displayAcc() {
-		gotoxy(width + 3, height / 2 - 4);
-		cout << acc.name;
-		gotoxy(width + 3, height / 2 - 3);
-		cout << "Рекорд: " << acc.score;
+		gotoxy(width + 3, height / 2 + 3);
+		cout << mainAcc.name;
+		gotoxy(width + 3, height / 2 + 4);
+		cout << "Рекорд: " << mainAcc.maxScore;
 	}
 	
 
-	void generateFood() {
+	void generateFood() { 
 		int posX =rand() % (width - 2) + 2;
 		int posY = rand()%(height-3)+2;
 		
+		// Проверки нахождения в позиции другого объекта
 		for (int i = 0; i < walls.size(); i++) {
 			if ((walls[i][0] == posX && walls[i][1] == posY)) {
 				generateFood();
@@ -386,9 +466,21 @@ struct Map {
 				return;
 			}
 		}
+		for (int i = 0; i < entPortals.size(); i++) {
+			if (entPortals[i][0] == posX && entPortals[i][1] == posY) {
+				generateFood();
+				return;
+			}
+		}
 
 		for (int i = 0; i < s.bodyMatrix.size(); i++) {
 			if (s.bodyMatrix[i][0] == posX && s.bodyMatrix[i][1] == posY) {
+				generateFood();
+				return;
+			}
+		}
+		for (int i = 0; i < wallMirrors.size(); i++) {
+			if (wallMirrors[i][0] == posX && wallMirrors[i][1] == posY) {
 				generateFood();
 				return;
 			}
@@ -438,9 +530,18 @@ struct Map {
 			if (food.empty()) {
 				generateFood();
 			};
+
+			
 		}
+		
+
+		mainAcc.games++;
+
+		saveAccount();
+
 		gotoxy(width / 2 - 4, height / 2);
 		SetColor(Red);
+
 		cout << "GAME OVER";
 		playGameOverSound();
 		SetColor();
