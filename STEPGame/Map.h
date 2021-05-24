@@ -91,6 +91,7 @@ struct Map {
 		walls = {};
 		portals = {};
 		entPortals = {};
+		wallMirrors = {};
 		score = 0;
 
 
