@@ -197,16 +197,21 @@ int main() {
 
 		switch (chooseMain) {
 		case 0: { // Редактирование ника
+			
+			printRaw("[ENTER] - Изменить имя\n[-> | ESC] - Вернуться", 90 - mainAcc.name.size() / 2 - 5, 27, 15);
 
 			OrbitedCenteredMenu nickEditMenu;
 			int editChoose = nickEditMenu.select_vertical({ mainAcc.name }, 90 - mainAcc.name.length() / 2, 23);
 			if (editChoose == OMP_RIGHT) {
+				printRaw("                      \n                      ", 90 - mainAcc.name.size() / 2 - 5, 27, 15);
 				continue;
 			}
-			if (editChoose != OMP_ESC) {
+			if (editChoose != OMP_ESC && editChoose != OMP_LEFT) {
 				system("cls");
 				gotoxy(30, 32);
-				cout << "[ESC] - Выйти";
+				cout << "[ESC] - Выйти	[ENTER] - Сохранить это имя";
+				gotoxy(30, 29);
+				cout << "Старое имя: " << mainAcc.name;
 				gotoxy(30, 30);
 				string baseString = "Введите новое имя: ";
 				cout << baseString;

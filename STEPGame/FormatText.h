@@ -100,6 +100,7 @@ fostream fcout; // Объект форматированного потока fo
 
 
 void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0, bool centered=false) { // Посимвольно копирует 
+	
 	if (centered) {
 		vector<string> strings;
 		string currentString = "";
@@ -117,6 +118,7 @@ void printRaw(string raw, int x, int _y, int fg = 7, int bg = 0, bool centered=f
 		}
 	}
 	else {
+		gotoxy(x, _y);
 		int y = 0;
 		SetColor(fg, bg);
 		for (int i = 0; i < raw.size(); i++) {

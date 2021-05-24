@@ -73,6 +73,7 @@ struct AchievementMenu {
 			}
 			gotoxy(45 + 30 + 60, 30);
 			cout << "Достижения " << completedAch << "/" << ach.size();
+			printRaw("[/\\ \\/] - Листать\n[ESC] - Выйти", 45 + 30 + 60, 32, 15);
 			
 			if (scrollPos > 0) {
 				gotoxy(45 + 30 + 50, 2);
