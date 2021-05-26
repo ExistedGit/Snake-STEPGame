@@ -79,7 +79,8 @@ struct Map {
 	vector<vector<int>> wallMirrors;
 	
 
-	bool isRunning = false;	
+	bool isRunning = false;
+	bool autoPilot = false;
 	
 	Snake s = Snake(width/2, height/2, 2);
 	
@@ -95,6 +96,7 @@ struct Map {
 		score = 0;
 
 
+		autoPilot = false;
 		g_EE_EXISTED = false;
 		g_EE_RainbowDash = false;
 	}
@@ -353,7 +355,6 @@ struct Map {
 	}
 	void foodCheck() { // Проверяет, была ли съедена еда
 		for (int i = 0; i < food.size(); i++) {
-			thread achClear;
 			if (s.bodyMatrix[0][0] == food[i][0] && s.bodyMatrix[0][1] == food[i][1]) {
 				food.pop_back();
 				s.growTail();
@@ -450,6 +451,11 @@ struct Map {
 		cout << "Рекорд: " << mainAcc.maxScore;
 	}
 	
+	void displayAutoPilot() {
+		
+		printCentered("Автопилот", width / 2, height + 2, autoPilot ? LightGreen : Red );
+
+	}
 
 	void generateFood() { 
 		int posX =rand() % (width - 2) + 2;
@@ -501,40 +507,94 @@ struct Map {
 		displayScore();
 		displayAcc();
 		while (isRunning) {
-			ShowConsoleCursor(false);
-			
-			drawPortals();
-			snakeCheck();
-			if (_kbhit()) {
-				int c; // Переменная, в которую засовывается направление
-				c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
-				if (c == VK_ESCAPE) { // Если нажат Escape, цикл останавливается
-					isRunning = false;
-					break;
+			displayAutoPilot();
+			if (!autoPilot) {
+				ShowConsoleCursor(false);
+
+				drawPortals();
+				snakeCheck();
+				if (_kbhit()) {
+					char c; // Переменная, в которую засовывается направление
+					c = _getch(); // Если кнопка была нажата, передаёт значение кнопки на проверку
+					if (c == VK_ESCAPE) { // Если нажат Escape, цикл останавливается
+						isRunning = false;
+						break;
+					}
+					else if (toupper(c) == 'A') {
+						autoPilot = true;
+						continue;
+					}
+					s.changeDirection(c);
+					snakeCheck();
+					foodCheck();
+					continue;
 				}
-				s.changeDirection(c);
+
+				if (!isRunning) break;
+
+				Sleep(150 * difficulty);
+				s.Update();
+				s.drawSnake();
+
+				gotoxy(0, height);
+				foodCheck();
+				
+
+
+				gotoxy(0, height + 1);
+				if (food.empty()) {
+					generateFood();
+				};
+
+			} else {
+				if (_kbhit()) {
+					char c = _getch();
+					if (toupper(c) == 'A') {
+						autoPilot = false;
+					}
+				}
+				
+				if (food[0][1] < s.bodyMatrix[0][1]) {
+					s.changeDirection(KEY_UP);
+					snakeCheck();
+					foodCheck();
+				}
+				else if (food[0][1] > s.bodyMatrix[0][1]) {
+					s.changeDirection(KEY_DOWN);
+					snakeCheck();
+					foodCheck();
+				}
+				else {
+					if (food[0][0] > s.bodyMatrix[0][0]) {
+						s.changeDirection(KEY_RIGHT);
+						snakeCheck();
+						foodCheck();
+					}
+					else if (food[0][0] < s.bodyMatrix[0][0]) {
+						s.changeDirection(KEY_LEFT);
+						snakeCheck();
+						foodCheck();
+					}
+					
+				}
+
 				snakeCheck();
 				foodCheck();
-				continue;
+
+				if (food.empty()) {
+					generateFood();
+				};
+
+				Sleep(150 * difficulty);
+				s.Update();
+				s.drawSnake();
+				snakeCheck();
+				foodCheck();
+
+				if (food.empty()) {
+					generateFood();
+				};
 			}
-
-			if (!isRunning) break;
-
-			Sleep(150 * difficulty);
-			s.Update();
-			s.drawSnake();
-			
-			gotoxy(0, height);
-			foodCheck();
-			
-			
-			
-			gotoxy(0, height+1);
-			if (food.empty()) {
-				generateFood();
-			};
-
-			
 		}
 		
 
