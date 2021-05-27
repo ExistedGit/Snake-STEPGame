@@ -70,7 +70,15 @@ struct Account {
     OVER 
  
              )Ach", "Несъедобно", "Впечатались в стену? Не беда, начните снова."},
-
+{R"Ach(
+%e   ____________
+  /. %D_%6\    /%D_%E .\
+ / |%D|  \__/  ||%E \
+(  |%D|  |__|  |%E|  )
+ \_%C.__. .__.%D_|%E|_/
+   %C|_O|-|O_|-
+  %6@         |
+   \___/    |)Ach", "Крыса на стиле", "Вы заценили работу моего коллеги об отважной крысе. Спасибо!"},
 {R"Ach(
 
  %300 %5+%2~~~\
@@ -101,64 +109,70 @@ struct Account {
 };
 Account mainAcc;
 
-void loadAccount() {
-	ifstream fin(dir +L"\\accInfo.txt");
-	
-	char name[80];
-	
-	if (fin.getline(name, 80)) {
-		int maxScore, games;
-		fin >> maxScore;
-		mainAcc.maxScore = maxScore;
-		fin >> games;
-		mainAcc.games = games;
-	}
-	mainAcc.name = name;
 
-	fin.close();
-	fin.open(dir + L"\\achInfo.txt");
-	vector<bool> achStates = {};
-	bool achState;
-	for (int i = 0; fin >> achState; i++) {
-		achStates.push_back(achState);
+struct AccManager {
+		static void loadAccount() {
+			ifstream fin(dir + L"\\accInfo.txt");
+
+			char name[80];
+
+			if (fin.getline(name, 80)) {
+				int maxScore, games;
+				fin >> maxScore;
+				mainAcc.maxScore = maxScore;
+				fin >> games;
+				mainAcc.games = games;
+			}
+			mainAcc.name = name;
+
+			fin.close();
+			fin.open(dir + L"\\achInfo.txt");
+			vector<bool> achStates = {};
+			bool achState;
+			for (int i = 0; fin >> achState; i++) {
+				achStates.push_back(achState);
+			};
+			for (int i = 0; i < achStates.size(); i++) {
+				mainAcc.ach[i].completed = achStates[i];
+			}
+
+			for (int i = ACH_100PTS; i <= ACH_2000PTS; i++) {
+				mainAcc.ach[i].progress = mainAcc.maxScore;
+				if (mainAcc.ach[i].progress >= mainAcc.ach[i].maxProgress) {
+					mainAcc.ach[i].completed = true;
+					mainAcc.ach[i].progress = mainAcc.ach[i].maxProgress;
+				}
+			}
+
+			for (int i = ACH_FIRSTGAME; i <= ACH_50GAMES; i++) {
+				mainAcc.ach[i].progress = mainAcc.games;
+				if (mainAcc.ach[i].progress >= mainAcc.ach[i].maxProgress) {
+					mainAcc.ach[i].completed = true;
+					mainAcc.ach[i].progress = mainAcc.ach[i].maxProgress;
+				}
+			}
+			fin.close();
+
+		}
+
+		static void saveAccount() {
+
+			ofstream fout;
+			fout.open(dir + L"\\accInfo.txt");
+			if (fout.is_open()) {
+				fout << mainAcc.name << endl << mainAcc.maxScore << endl << mainAcc.games;
+				fout.close();
+			}
+			fout.open(dir + L"\\achInfo.txt");
+			if (fout.is_open()) {
+				for (int i = 0; i < mainAcc.ach.size(); i++) {
+					fout << mainAcc.ach[i].completed << endl;
+				}
+				fout.close();
+			}
+
+		}
 	};
-	for (int i = 0; i < achStates.size(); i++) {
-		mainAcc.ach[i].completed = achStates[i];
-	}
 
-	for (int i = ACH_100PTS; i <= ACH_2000PTS; i++) {
-		mainAcc.ach[i].progress = mainAcc.maxScore;
-		if (mainAcc.ach[i].progress >= mainAcc.ach[i].maxProgress) {
-			mainAcc.ach[i].completed = true;
-			mainAcc.ach[i].progress = mainAcc.ach[i].maxProgress;
-		}
-	}
-
-	for (int i = ACH_FIRSTGAME; i <= ACH_50GAMES; i++) {
-		mainAcc.ach[i].progress = mainAcc.games;
-		if (mainAcc.ach[i].progress >= mainAcc.ach[i].maxProgress) {
-			mainAcc.ach[i].completed = true;
-			mainAcc.ach[i].progress = mainAcc.ach[i].maxProgress;
-		}
-	}
-	fin.close();
-
-}
-
-void saveAccount() {
-	
-	ofstream fout;
-	fout.open(dir + L"\\accInfo.txt");
-	if (fout.is_open()) {
-		fout << mainAcc.name << endl << mainAcc.maxScore << endl << mainAcc.games;
-		fout.close();
-	}
-	fout.open(dir + L"\\achInfo.txt");
-	if (fout.is_open()) {
-		for (int i = 0; i < mainAcc.ach.size(); i++) {
-			fout << mainAcc.ach[i].completed << endl;
-		}
-		fout.close();
-	}
-
-}
+#define saveAccount AccManager::saveAccount
+#define loadAccount AccManager::loadAccount

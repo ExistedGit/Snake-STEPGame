@@ -10,6 +10,8 @@
 
 using namespace std;
 
+
+
 #define MAX_WARNING_STRSIZE 40
 
 bool aboutAuthor() { // Возвращает false, если выбран вариант "Назад"
@@ -23,13 +25,17 @@ bool aboutAuthor() { // Возвращает false, если выбран вар
 Рекомендую посетить его %6GitHub%7-репозиторий и ознакомиться с Крысой.)Au";
 	printRawF(raw, 115,20, true);
 	vector<string> buttons = {"Перейти на GitHub Змейки", "Перейти на GitHub Крысы", "Назад"};
-
-
 	CenteredMenu menu;
 	int choose = menu.select_vertical(buttons, 100, 30) + 1;
 	if (choose == 1) system("start https://github.com/ExistedGit/Snake-STEPGame");
-	else if (choose == 2) system("start https://github.com/dankozz1t/RatSimulator");
-	
+	else if (choose == 2) {
+		system("start https://github.com/dankozz1t/RatSimulator");
+		if (!mainAcc.ach[ACH_GITHUB].completed) {
+			
+			mainAcc.ach[ACH_GITHUB].completed = true;
+			AccManager::saveAccount();
+		}
+	}
 	return choose != 3; // Таким вот образом мы избегаем множественных точек выхода
 }
 // Run SnakeMapEditor

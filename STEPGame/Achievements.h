@@ -20,13 +20,6 @@ struct Achievement {
 	int progress = -1; // -1 прогресс быть не может, поэтому в таком случае он и не выводится
 	int maxProgress = -1; // тоже
 
-	// Массив всех возможных достижений
-	
-
-
-	//Achievement() {
-	//	if (progress >= maxProgress) completed = true;
-	//}
 };
 
 
@@ -117,6 +110,7 @@ enum achievementID {
 	ACH_100PTS,
 	ACH_500PTS,
 	ACH_2000PTS,
+	ACH_GITHUB,
 	ACH_WALLDEATH,
 	ACH_PORTALUSE,
 	ACH_ENTPORTALUSE,
