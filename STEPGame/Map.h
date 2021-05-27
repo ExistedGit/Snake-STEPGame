@@ -10,10 +10,6 @@
 #include <mmsystem.h>
 #include<stdlib.h>
 
-#include <thread>
-
-//#include <thread>
-
 
 
 
@@ -353,7 +349,6 @@ struct Map {
 	}
 	void foodCheck() { // Проверяет, была ли съедена еда
 		for (int i = 0; i < food.size(); i++) {
-			thread achClear;
 			if (s.bodyMatrix[0][0] == food[i][0] && s.bodyMatrix[0][1] == food[i][1]) {
 				food.pop_back();
 				s.growTail();
@@ -430,14 +425,14 @@ struct Map {
 	}
 
 	void displayLength() {
-		gotoxy(width+3, height/2 + 1);
+		gotoxy(width+3, height/2 + 5);
 		SetColor(15);
 		cout << "Длина: "<< s.length;
 		SetColor();
 	}
 
 	void displayScore() {
-		gotoxy(width + 3, height / 2 + 2);
+		gotoxy(width + 3, height / 2 + 6);
 		SetColor(15);
 		cout << "Счёт: " << score;
 		SetColor();
