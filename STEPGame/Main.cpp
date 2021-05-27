@@ -198,7 +198,7 @@ int main() {
 		switch (chooseMain) {
 		case 0: { // Редактирование ника
 			
-			printRaw("[ENTER] - Изменить имя\n[-> | ESC] - Вернуться", 90 - mainAcc.name.size() / 2 - 5, 27, 15);
+			printRaw("[ENTER] - Изменить имя\n[-> | ESC] - Вернуться", 90 - (mainAcc.name.size() / 2 == 0 ? 3 : mainAcc.name.size() / 2) - 5, 27, 15);
 
 			OrbitedCenteredMenu nickEditMenu;
 			int editChoose = nickEditMenu.select_vertical({ mainAcc.name }, 90 - mainAcc.name.length() / 2, 23);
@@ -354,8 +354,8 @@ int main() {
 			break;
 		}
 
-			  system("cls");
-			  saveAccount();
+			system("cls");
+			saveAccount();
 		}
 
 	}

@@ -7,7 +7,7 @@
 using namespace std;
 
 struct Account {
-	string name = "Rainbow Dash";
+	string name = "Default Name";
 	int maxScore = 0, games = 0;
 	vector<Achievement> ach = {
 
@@ -99,7 +99,7 @@ struct Account {
  |       |
  \%B.......%B/)Ach", "По ту сторону", "Зеркальные стены использовались корпорацией до изобретения порталов, но всё ещё являются надёжным методом быстрых перемещений(к более функциональным устройствам)." } };
 };
-static Account mainAcc;
+Account mainAcc;
 
 void loadAccount() {
 	ifstream fin(dir +L"\\accInfo.txt");
