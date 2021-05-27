@@ -458,7 +458,7 @@ struct Map {
 	}
 
 	void generateFood() { 
-		int posX =rand() % (width - 2) + 2;
+		int posX = rand() % (width - 2) + 2;
 		int posY = rand()%(height-3)+2;
 		
 		// Проверки нахождения в позиции другого объекта
@@ -553,27 +553,105 @@ struct Map {
 						autoPilot = false;
 					}
 				}
+				/*for (auto i : walls) {
+					if (s.bodyMatrix[0][1] + 1 == i[1] && s.direction == DOWN) {
+						if (s.bodyMatrix[0][1] + 1 == i[1] && s.bodyMatrix[0][0] + 1 == i[0]) {
+							s.changeDirection(KEY_RIGHT);
+						} else if (s.bodyMatrix[0][1] + 1 == i[1] && s.bodyMatrix[0][0] - 1 == i[0]) {
+							s.changeDirection(KEY_LEFT);
+						}
+					}
+					else if (s.bodyMatrix[0][1] - 1 == i[1] && s.direction == UP) {
+						if (s.bodyMatrix[0][1] - 1 == i[1] && s.bodyMatrix[0][0] + 1 == i[0]) {
+							s.changeDirection(KEY_RIGHT);
+						}
+						else if (s.bodyMatrix[0][1] - 1 == i[1] && s.bodyMatrix[0][0] - 1 == i[0]) {
+							s.changeDirection(KEY_LEFT);
+						}
+					}
+				}*/
+
+				bool dirChanged = false;
 				
-				if (food[0][1] < s.bodyMatrix[0][1]) {
-					s.changeDirection(KEY_UP);
-					snakeCheck();
-					foodCheck();
-				}
-				else if (food[0][1] > s.bodyMatrix[0][1]) {
-					s.changeDirection(KEY_DOWN);
-					snakeCheck();
-					foodCheck();
-				}
-				else {
-					if (food[0][0] > s.bodyMatrix[0][0]) {
-						s.changeDirection(KEY_RIGHT);
+				//Если еда...
+				if (food[0][1] < s.bodyMatrix[0][1]) { // Сверху
+					if (s.direction != DOWN && s.direction != UP) {
+						s.changeDirection(KEY_UP);
 						snakeCheck();
 						foodCheck();
+						dirChanged = true;
 					}
-					else if (food[0][0] < s.bodyMatrix[0][0]) {
+					else  if (s.direction == DOWN) {
 						s.changeDirection(KEY_LEFT);
 						snakeCheck();
 						foodCheck();
+						s.drawSnake();
+						s.changeDirection(KEY_UP);
+						snakeCheck();
+						foodCheck();
+						s.drawSnake();
+					}
+				}
+				else if (food[0][1] > s.bodyMatrix[0][1]) { // Снизу
+					if (s.direction != UP && s.direction != DOWN) {
+						s.changeDirection(KEY_DOWN);
+						snakeCheck();
+						foodCheck();
+						dirChanged = true;
+					}
+					else  if (s.direction == UP) {
+						s.changeDirection(KEY_LEFT);
+						snakeCheck();
+						foodCheck();
+						s.drawSnake();
+						s.changeDirection(KEY_DOWN);
+						snakeCheck();
+						foodCheck();
+						s.drawSnake();
+					}
+				}
+				else {
+					if (food[0][0] > s.bodyMatrix[0][0]) { // Справа
+						if (s.direction != LEFT && s.direction != RIGHT) {
+							s.changeDirection(KEY_RIGHT);
+							snakeCheck();
+							foodCheck();
+							dirChanged = true;
+						}
+						else if(s.direction == LEFT) {
+							s.changeDirection(KEY_UP);
+							snakeCheck();
+							foodCheck();
+							s.drawSnake();
+							s.changeDirection(KEY_RIGHT);
+							snakeCheck();
+							foodCheck();
+							s.drawSnake();
+						}
+					}
+					else if (food[0][0] < s.bodyMatrix[0][0]) { // Слева
+						/*bool isChangeSafe = true;
+						for (auto i : s.bodyMatrix) {
+							if (s.bodyMatrix[0][0] - 1 == i[0]) isChangeSafe = false;
+						}
+						if (isChangeSafe) {*/
+							if (s.direction != RIGHT && s.direction != LEFT) {
+								s.changeDirection(KEY_LEFT);
+								snakeCheck();
+								foodCheck();
+								dirChanged = true;
+							}
+							else if (s.direction == RIGHT) {
+								s.changeDirection(KEY_UP);
+								snakeCheck();
+								foodCheck();
+								s.drawSnake();
+								s.changeDirection(KEY_LEFT);
+								snakeCheck();
+								foodCheck();
+								s.drawSnake();
+							}
+					
 					}
 					
 				}
@@ -584,16 +662,18 @@ struct Map {
 				if (food.empty()) {
 					generateFood();
 				};
+				
+				Sleep(50 * difficulty);
+				if (!dirChanged) {
+					s.Update();
+					s.drawSnake();
+					snakeCheck();
+					foodCheck();
 
-				Sleep(150 * difficulty);
-				s.Update();
-				s.drawSnake();
-				snakeCheck();
-				foodCheck();
-
-				if (food.empty()) {
-					generateFood();
-				};
+					if (food.empty()) {
+						generateFood();
+					};
+				}
 			}
 		}
 		
